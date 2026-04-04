@@ -78,6 +78,15 @@
                 Member & Petugas
             </a>
 
+            <a href="{{ route('admin.complaints.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
+               {{ request()->routeIs('admin.complaints.*')
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                    : 'hover:bg-gray-100 text-gray-800' }}">
+                <i data-lucide="message-square-warning" class="w-5 h-5"></i>
+                Keluhan Pelanggan
+            </a>
+
         </nav>
 
 

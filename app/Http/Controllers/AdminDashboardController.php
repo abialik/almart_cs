@@ -14,8 +14,8 @@ class AdminDashboardController extends Controller
         // 1. Total Transaksi Hari Ini
         $totalOrdersToday = Order::whereDate('created_at', Carbon::today())->count();
 
-        // 2. Total Pendapatan (Pesanan yang Sukses)
-        $totalRevenue = Order::where('status', 'Diterima')->orWhere('status', 'Dikirim')->sum('total');
+        // 2. Total Pendapatan (Sesuai dengan pembelian / pesanan yang tidak dibatalkan)
+        $totalRevenue = Order::where('status', '!=', 'cancelled')->sum('total');
 
         // 3. Produk Tersedia
         $totalProducts = Product::where('stock', '>', 0)->where('is_active', true)->count();
@@ -45,10 +45,10 @@ class AdminDashboardController extends Controller
 
         // 7. Status Pengiriman SAPA (Donut Chart)
         $statusCounts = [
-            'Terkirim' => Order::where('status', 'Diterima')->count(),
-            'Dalam Proses' => Order::whereIn('status', ['Diproses', 'Dikirim'])->count(),
-            'Pending' => Order::where('status', 'Baru')->count(),
-            'Dibatalkan' => Order::where('status', 'Dibatalkan')->count(),
+            'Terkirim' => Order::where('status', 'delivered')->count(),
+            'Dalam Proses' => Order::whereIn('status', ['paid', 'processing'])->count(),
+            'Pending' => Order::where('status', 'pending')->count(),
+            'Dibatalkan' => Order::where('status', 'cancelled')->count(),
         ];
 
         // 8. Transaksi Terbaru (Limit 5)

@@ -159,7 +159,12 @@
 
                         <a href="{{ route('customer.returns.index') }}"
                            class="block px-6 py-3 hover:bg-gray-50 transition">
-                            Pengajuan
+                            Riwayat Retur
+                        </a>
+
+                        <a href="{{ route('customer.complaints.index') }}"
+                           class="block px-6 py-3 hover:bg-gray-50 transition">
+                            Riwayat Keluhan
                         </a>
 
                     </div>

@@ -63,6 +63,15 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        @if($user->role === 'customer')
+                            <x-dropdown-link :href="route('customer.complaints.index')">
+                                {{ __('Riwayat Keluhan') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('customer.returns.index')">
+                                {{ __('Riwayat Retur') }}
+                            </x-dropdown-link>
+                        @endif
+
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <x-dropdown-link :href="route('logout')"
@@ -121,6 +130,15 @@
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
+
+                @if($user->role === 'customer')
+                    <x-responsive-nav-link :href="route('customer.complaints.index')">
+                        {{ __('Riwayat Keluhan') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('customer.returns.index')">
+                        {{ __('Riwayat Retur') }}
+                    </x-responsive-nav-link>
+                @endif
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

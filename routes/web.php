@@ -91,6 +91,14 @@ Route::middleware(['auth', 'active', 'role:customer'])
             ->name('returns.create');
         Route::post('/orders/{order}/return', [App\Http\Controllers\ReturnController::class, 'store'])
             ->name('returns.store');
+
+        // COMPLAINTS
+        Route::get('/complaints', [\App\Http\Controllers\CustomerComplaintController::class, 'index'])
+            ->name('complaints.index');
+        Route::get('/complaint', [\App\Http\Controllers\PageController::class, 'complaint'])
+            ->name('complaint.create');
+        Route::post('/complaint', [\App\Http\Controllers\PageController::class, 'submitComplaint'])
+            ->name('complaint.store');
     });
 
 
@@ -140,6 +148,11 @@ Route::middleware(['auth', 'active', 'role:admin'])
         // USERS MANAGEMENT
         Route::resource('users', AdminUserController::class);
 
+        // COMPLAINTS MANAGEMENT
+        Route::get('/complaints', [\App\Http\Controllers\AdminComplaintController::class, 'index'])->name('complaints.index');
+        Route::get('/complaints/{complaint}', [\App\Http\Controllers\AdminComplaintController::class, 'show'])->name('complaints.show');
+        Route::patch('/complaints/{complaint}/respond', [\App\Http\Controllers\AdminComplaintController::class, 'respond'])->name('complaints.respond');
+
     });
 
 
@@ -183,6 +196,8 @@ Route::controller(\App\Http\Controllers\PageController::class)->group(function (
     Route::get('/contact', 'contact')->name('pages.contact');
     Route::get('/support-center', 'support')->name('pages.support');
     Route::get('/faq', 'faq')->name('pages.faq');
+    Route::get('/return-request', 'returnRequest')->name('pages.return_request');
+    Route::post('/return-request', 'processReturnRequest')->name('pages.return_request.process');
 });
 
 Route::fallback(function () {
