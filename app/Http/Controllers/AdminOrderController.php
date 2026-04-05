@@ -26,7 +26,7 @@ class AdminOrderController extends Controller
         // Stats calculation
         $allOrders = Order::with('payment')->get();
         $totalOrders = $allOrders->count();
-        $totalRevenue = $allOrders->where('status', '!=', 'cancelled')->sum('total');
+        $totalRevenue = $allOrders->whereIn('status', ['paid', 'processing', 'delivered'])->sum('total');
         $offlineOrders = $allOrders->filter(function($order) {
             return strtolower(optional($order->payment)->method) === 'tunai' || strtolower(optional($order->payment)->method) === 'cod';
         })->count();
@@ -53,11 +53,28 @@ class AdminOrderController extends Controller
             'status' => 'required|in:pending,paid,processing,delivered,cancelled'
         ]);
 
+        $previousStatus = $order->status;
         $order->update(['status' => $request->status]);
 
         // If status changed to paid, ensure payment status is also paid
         if ($request->status === 'paid' && $order->payment) {
             $order->payment->update(['status' => 'paid']);
+        }
+
+        // Jika pesanan dibatalkan, kembalikan stok ke gudang
+        if ($request->status === 'cancelled' && $previousStatus !== 'cancelled') {
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $item->product->increment('stock', $item->qty);
+                }
+            }
+        } elseif ($previousStatus === 'cancelled' && $request->status !== 'cancelled') {
+            // Jika pesanan yang tadinya dibatalkan DIBUKA KEMBALI, potong lagi stoknya
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $item->product->decrement('stock', $item->qty);
+                }
+            }
         }
 
         return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui menjadi ' . strtoupper($request->status));

@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/pusher-js@8.3.0/dist/web/pusher.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.min.js"></script>
     <style>
@@ -30,9 +31,7 @@
 
         <!-- Logo -->
         <div class="px-6 py-6 border-b border-gray-100 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-50">
-                <span class="text-xl">🏪</span>
-            </div>
+            <img src="{{ asset('images/logo.png') }}" class="h-10 w-10 object-contain drop-shadow-sm" alt="Almart Logo">
             <div>
                 <h2 class="text-xl font-bold text-gray-800 leading-tight">Almart</h2>
                 <p class="text-[10px] text-gray-400 font-semibold tracking-wider uppercase">Admin Panel</p>
@@ -105,28 +104,12 @@
                 <button id="toggleSidebarBtn" class="p-2 -ml-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-xl transition-colors focus:outline-none flex-shrink-0">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
-                
-                <div class="w-full relative group">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
-                    <input type="text"
-                           placeholder="Cari transaksi, produk, member..."
-                           class="w-full pl-11 pr-5 py-3 rounded-2xl border border-gray-100 bg-gray-50/50
-                                  focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 focus:bg-white outline-none text-sm font-medium transition-all">
-                </div>
             </div>
 
             <!-- User -->
             <div class="flex items-center gap-5 ml-6">
 
-                <button class="w-10 h-10 rounded-xl border border-gray-100 bg-white flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors shadow-sm relative">
-                    <span class="absolute top-2 right-2 flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                    </span>
-                    <span class="text-lg">🎉</span>
-                </button>
 
-                <div class="h-8 w-px bg-gray-200"></div>
 
                 <!-- User Profile Dropdown -->
                 <div class="relative">

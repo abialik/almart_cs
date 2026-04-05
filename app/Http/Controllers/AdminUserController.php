@@ -148,6 +148,11 @@ class AdminUserController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat menghapus akun Anda sendiri.');
         }
 
+        // Cegah penghapusan jika User memiliki riwayat pesanan (menghindari hilangnya data penjualan/financial loss)
+        if ($user->orders()->exists()) {
+             return redirect()->back()->with('error', 'User tidak dapat dihapus karena memiliki riwayat pesanan aktif. Penghapusan akan ikut menghapus riwayat transaksi mereka.');
+        }
+
         $tab = $user->role;
         $user->delete();
 

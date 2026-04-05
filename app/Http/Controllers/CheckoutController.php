@@ -46,7 +46,12 @@ class CheckoutController extends Controller
 
         $addresses = Auth::user()->addresses()->latest()->get();
 
-        $subtotal = $cartItems->sum(fn($item) => $item->product->price * $item->qty);
+        $subtotal = 0;
+        foreach ($cartItems as $item) {
+            if ($item->product) {
+                $subtotal += $item->product->price * $item->qty;
+            }
+        }
         $shippingFee = 0;
         $total = $subtotal + $shippingFee;
 
@@ -89,6 +94,18 @@ class CheckoutController extends Controller
                 ->with('error', 'Tidak ada item yang dipilih untuk dicheckout.');
         }
 
+        // Validasi Ketersediaan Stok & Produk
+        foreach ($cartItems as $item) {
+            if (!$item->product) {
+                return redirect()->route('customer.cart.index')
+                    ->with('error', 'Ada produk di keranjang kamu yang sudah tidak tersedia lagi.');
+            }
+            if ($item->qty > $item->product->stock) {
+                return redirect()->route('customer.cart.index')
+                    ->with('error', 'Stok produk ' . $item->product->name . ' tidak mencukupi (Tersisa: ' . $item->product->stock . '). Silakan kurangi qty pesanan Anda.');
+            }
+        }
+
         // Tentukan data alamat
         if ($request->filled('address_id')) {
             $addr = Address::where('user_id', Auth::id())->where('id', $request->address_id)->firstOrFail();
@@ -110,14 +127,27 @@ class CheckoutController extends Controller
                 'phone'     => $request->phone,
             ];
 
-            // Simpan alamat baru secara otomatis agar bisa dipakai lagi
-            Address::create(array_merge($addressData, [
-                'user_id' => Auth::id(),
-                'label'   => 'Alamat Baru'
-            ]));
+            // Cek duplikasi alamat untuk user ini agar tidak tersimpan dobel
+            $existingAddr = Address::where('user_id', Auth::id())
+                ->where('address', $request->address)
+                ->where('city', $request->city)
+                ->first();
+
+            if (!$existingAddr) {
+                Address::create(array_merge($addressData, [
+                    'user_id'    => Auth::id(),
+                    'label'      => 'Alamat ' . (Auth::user()->addresses()->count() + 1),
+                    'is_default' => Auth::user()->addresses()->count() === 0
+                ]));
+            }
         }
 
-        $subtotal    = $cartItems->sum(fn($item) => $item->product->price * $item->qty);
+        $subtotal = 0;
+        foreach ($cartItems as $item) {
+            if ($item->product) {
+                $subtotal += $item->product->price * $item->qty;
+            }
+        }
         $shippingFee = 0;
         $total       = $subtotal + $shippingFee;
 
@@ -134,7 +164,7 @@ class CheckoutController extends Controller
         // Trigger Real-time Event for Admin
         event(new NewOrderEvent($order));
 
-        // Buat order items
+        // Buat order items & potong stok
         foreach ($cartItems as $item) {
             OrderItem::create([
                 'order_id'  => $order->id,
@@ -143,6 +173,9 @@ class CheckoutController extends Controller
                 'qty'       => $item->qty,
                 'subtotal'  => $item->product->price * $item->qty,
             ]);
+
+            // DEDUCT STOCK
+            $item->product->decrement('stock', $item->qty);
         }
 
         // Buat record payment

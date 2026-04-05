@@ -344,15 +344,17 @@
 
         {{-- ========== PLACE ORDER BUTTON ========== --}}
         <div class="mt-10">
-            <button type="submit"
+            <button type="submit" id="btnPlaceOrder"
                     class="w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600
                            text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl
                            transform hover:-translate-y-0.5 transition-all duration-200
                            flex items-center justify-center gap-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Place Order
+                <span id="btnText" class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Place Order
+                </span>
             </button>
         </div>
 
@@ -430,6 +432,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (radio) radio.checked = true;
         });
     });
+
+    // Prevent double submission
+    const checkoutForm = document.getElementById('checkoutForm');
+    const btnPlaceOrder = document.getElementById('btnPlaceOrder');
+    const btnText = document.getElementById('btnText');
+
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function() {
+            if (btnPlaceOrder) {
+                btnPlaceOrder.disabled = true;
+                btnPlaceOrder.classList.add('opacity-75', 'cursor-not-allowed');
+                if (btnText) {
+                    btnText.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
+                }
+            }
+        });
+    }
 });
 </script>
 

@@ -117,7 +117,7 @@
                     <a href="{{ route('admin.users.edit', $user->id) }}" class="text-gray-400 hover:text-gray-600 hover:bg-gray-50 p-1.5 rounded-lg transition" title="Edit">
                         <i data-lucide="edit" class="w-4 h-4"></i>
                     </a>
-                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline" onsubmit="confirmDelete(event, this)">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition" title="Hapus">
@@ -175,4 +175,28 @@
     </div>
     @endif
 </div>
+<script>
+    function confirmDelete(event, form) {
+        event.preventDefault();
+        Swal.fire({
+            title: 'Hapus Pengguna?',
+            text: "Data yang dihapus tidak bisa dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-3xl shadow-xl border border-gray-100',
+                confirmButton: 'rounded-xl font-bold px-6 py-2.5',
+                cancelButton: 'rounded-xl font-bold px-6 py-2.5'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+</script>
 @endsection

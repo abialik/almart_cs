@@ -47,10 +47,18 @@
                                         'delivered'  => 'bg-purple-100 text-purple-700',
                                         'cancelled'  => 'bg-rose-100 text-rose-700',
                                     ];
+                                    $statusNames = [
+                                        'pending'    => 'Menunggu Pembayaran',
+                                        'paid'       => 'Dibayar',
+                                        'processing' => 'Diproses',
+                                        'delivered'  => 'Terkirim',
+                                        'cancelled'  => 'Dibatalkan',
+                                    ];
                                     $class = $statusClasses[$order->status] ?? 'bg-gray-100 text-gray-700';
+                                    $name = $statusNames[$order->status] ?? ucfirst($order->status);
                                 @endphp
                                 <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide {{ $class }}">
-                                    {{ $order->status }}
+                                    {{ $name }}
                                 </span>
                             </td>
                             <td class="px-8 py-6 text-center">

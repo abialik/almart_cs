@@ -167,13 +167,16 @@ Route::middleware(['auth', 'active', 'role:petugas'])
     ->name('petugas.')
     ->group(function () {
 
-        Route::view('/dashboard', 'dashboards.petugas')
-            ->name('dashboard');
-
-        // ORDERS MANAGEMENT
-        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
-        Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
+        // MAIN DASHBOARD & ORDERS
+        Route::get('/dashboard', [\App\Http\Controllers\PetugasDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/orders', [\App\Http\Controllers\PetugasDashboardController::class, 'index'])->name('orders.index');
+        
+        // MODAL DETAIL (AJAX return HTML fragment)
+        Route::get('/orders/{order}/detail', [\App\Http\Controllers\PetugasDashboardController::class, 'show'])->name('orders.detail');
+        Route::get('/orders/{order}/picking-detail', [\App\Http\Controllers\PetugasDashboardController::class, 'showPicking'])->name('orders.picking-detail');
+        
+        // UPDATE STATUS
+        Route::patch('/orders/{order}/status', [\App\Http\Controllers\AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
     });
 
 

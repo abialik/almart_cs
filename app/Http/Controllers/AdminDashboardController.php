@@ -14,8 +14,8 @@ class AdminDashboardController extends Controller
         // 1. Total Transaksi Hari Ini
         $totalOrdersToday = Order::whereDate('created_at', Carbon::today())->count();
 
-        // 2. Total Pendapatan (Sesuai dengan pembelian / pesanan yang tidak dibatalkan)
-        $totalRevenue = Order::where('status', '!=', 'cancelled')->sum('total');
+        // 2. Total Pendapatan (Hanya pesanan yang sudah dibayar/dikirim)
+        $totalRevenue = Order::whereIn('status', ['paid', 'processing', 'delivered'])->sum('total');
 
         // 3. Produk Tersedia
         $totalProducts = Product::where('stock', '>', 0)->where('is_active', true)->count();

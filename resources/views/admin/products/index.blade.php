@@ -138,7 +138,7 @@
                         <a href="{{ route('admin.products.edit', $product->id) }}" class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-xl transition" title="Edit Produk">
                             <i data-lucide="edit-3" class="w-4 h-4"></i>
                         </a>
-                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
+                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="inline" onsubmit="confirmDelete(event, this)">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition" title="Hapus Produk">
@@ -201,4 +201,28 @@
     </div>
     @endif
 </div>
+<script>
+    function confirmDelete(event, form) {
+        event.preventDefault();
+        Swal.fire({
+            title: 'Hapus Produk?',
+            text: "Data yang dihapus tidak bisa dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-3xl shadow-xl border border-gray-100',
+                confirmButton: 'rounded-xl font-bold px-6 py-2.5',
+                cancelButton: 'rounded-xl font-bold px-6 py-2.5'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+</script>
 @endsection

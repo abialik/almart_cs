@@ -191,13 +191,14 @@
                         <p class="text-base font-extrabold text-gray-900">Rp {{ number_format($order->total, 0, ',', '.') }}</p>
                         @php
                             $statusColor = 'bg-gray-100 text-gray-600';
-                            if (in_array($order->status, ['Baru'])) $statusColor = 'bg-blue-100 text-blue-600';
-                            elseif (in_array($order->status, ['Dibatalkan'])) $statusColor = 'bg-rose-100 text-rose-600';
-                            elseif (in_array($order->status, ['Diterima'])) $statusColor = 'bg-emerald-100 text-emerald-600';
-                            else $statusColor = 'bg-orange-100 text-orange-600';
+                            $displayStatus = ucfirst($order->status); // Keep it readable
+                            if (in_array($order->status, ['pending'])) { $statusColor = 'bg-blue-100 text-blue-600'; $displayStatus = 'Baru'; }
+                            elseif (in_array($order->status, ['cancelled'])) { $statusColor = 'bg-rose-100 text-rose-600'; $displayStatus = 'Dibatalkan'; }
+                            elseif (in_array($order->status, ['delivered'])) { $statusColor = 'bg-emerald-100 text-emerald-600'; $displayStatus = 'Terkirim'; }
+                            elseif (in_array($order->status, ['paid', 'processing'])) { $statusColor = 'bg-orange-100 text-orange-600'; $displayStatus = 'Diproses'; }
                         @endphp
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold {{ $statusColor }} mt-1 uppercase tracking-widest">
-                            {{ $order->status }}
+                            {{ $displayStatus }}
                         </span>
                     </div>
                 </div>

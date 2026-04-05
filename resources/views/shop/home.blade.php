@@ -177,9 +177,19 @@
                     </div>
                 </div>
 
-                <button class="w-full mt-4 bg-red-500 text-white py-2.5 rounded-xl text-sm hover:bg-red-600 transition">
-                    Add to Cart
-                </button>
+                @auth
+                   <form action="{{ route('customer.cart.add', $product->id) }}" method="POST">
+                        @csrf
+                    <button class="btn-add-to-cart w-full mt-4 bg-red-500 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-red-600 transition shadow-sm" data-product-id="{{ $product->id }}">
+                        Tambah ke Keranjang
+                    </button>
+                    </form>
+                @else
+                    <a href="/login"
+                       class="block w-full mt-4 bg-red-500 text-white py-2.5 rounded-xl text-sm text-center font-semibold hover:bg-red-600 transition shadow-sm">
+                        Tambah ke Keranjang
+                    </a>
+                @endauth
 
             </div>
             @endforeach

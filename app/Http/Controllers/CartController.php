@@ -35,9 +35,21 @@ class CartController extends Controller
             ->first();
 
         if ($cartItem) {
+            if ($cartItem->qty + 1 > $product->stock) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Stok produk tidak mencukupi. Sisa: ' . $product->stock]);
+                }
+                return back()->with('error', 'Stok produk tidak mencukupi.');
+            }
             $cartItem->qty += 1;
             $cartItem->save();
         } else {
+            if ($product->stock < 1) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Stok produk habis.']);
+                }
+                return back()->with('error', 'Stok produk habis.');
+            }
             CartItem::create([
                 'cart_id' => $cart->id,
                 'product_id' => $productId,
@@ -81,6 +93,9 @@ class CartController extends Controller
         ->first();
 
     if ($item) {
+        if ($item->qty + 1 > $item->product->stock) {
+            return back()->with('error', 'Stok maksimal telah tercapai.');
+        }
         $item->qty += 1;
         $item->save();
     }

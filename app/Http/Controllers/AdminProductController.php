@@ -55,8 +55,14 @@ class AdminProductController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('price')) {
+            $request->merge([
+                'price' => str_replace(['.', ','], '', $request->price)
+            ]);
+        }
+
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:products,name',
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
@@ -70,12 +76,15 @@ class AdminProductController extends Controller
         $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images/products'), $filename);
+            $data['image'] = 'images/products/' . $filename;
         }
 
         Product::create($data);
 
-        return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan.');
+        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan.');
     }
 
     public function edit(Product $product)
@@ -86,8 +95,14 @@ class AdminProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        if ($request->has('price')) {
+            $request->merge([
+                'price' => str_replace(['.', ','], '', $request->price)
+            ]);
+        }
+
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
@@ -103,17 +118,30 @@ class AdminProductController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images/products'), $filename);
+            $data['image'] = 'images/products/' . $filename;
         }
 
         $product->update($data);
 
-        return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui.');
+        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy(Product $product)
     {
+        // Cegah penghapusan jika produk sudah pernah dibeli
+        if (\App\Models\OrderItem::where('product_id', $product->id)->exists()) {
+            return redirect()->back()->with('error', 'Produk ini tidak bisa dihapus karena sudah tercatat dalam riwayat pesanan pelanggan. Silakan Edit dan Nonaktifkan status produk.');
+        }
+
+        // Hapus file gambar dari server
+        if ($product->image && file_exists(public_path($product->image))) {
+            unlink(public_path($product->image));
+        }
+
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
+        return redirect()->route('admin.products.index')->with('success', 'Produk dan gambar berhasil dihapus.');
     }
 }

@@ -15,6 +15,7 @@
 <div class="min-h-screen">
 
     @auth
+    @if(auth()->user()->role !== 'petugas')
     <nav class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
 
         <div class="font-bold text-lg">
@@ -51,9 +52,10 @@
 
         </div>
     </nav>
+    @endif
     @endauth
 
-    <main class="p-6">
+    <main class="{{ auth()->check() && auth()->user()->role === 'petugas' ? '' : 'p-6' }}">
         @yield('content')
         {{ $slot ?? '' }}
     </main>
