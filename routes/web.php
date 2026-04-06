@@ -156,6 +156,11 @@ Route::middleware(['auth', 'active', 'role:admin'])
         Route::get('/complaints/{complaint}', [\App\Http\Controllers\AdminComplaintController::class, 'show'])->name('complaints.show');
         Route::patch('/complaints/{complaint}/respond', [\App\Http\Controllers\AdminComplaintController::class, 'respond'])->name('complaints.respond');
 
+        // RETURNS MANAGEMENT
+        Route::get('/returns', [\App\Http\Controllers\AdminReturnController::class, 'index'])->name('returns.index');
+        Route::get('/returns/{return}', [\App\Http\Controllers\AdminReturnController::class, 'show'])->name('returns.show');
+        Route::patch('/returns/{return}/update', [\App\Http\Controllers\AdminReturnController::class, 'update'])->name('returns.update');
+
     });
 
 
@@ -208,8 +213,6 @@ Route::controller(\App\Http\Controllers\PageController::class)->group(function (
     Route::get('/contact', 'contact')->name('pages.contact');
     Route::get('/support-center', 'support')->name('pages.support');
     Route::get('/faq', 'faq')->name('pages.faq');
-    Route::get('/return-request', 'returnRequest')->name('pages.return_request');
-    Route::post('/return-request', 'processReturnRequest')->name('pages.return_request.process');
 });
 
 Route::fallback(function () {

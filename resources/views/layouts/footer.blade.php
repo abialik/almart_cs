@@ -62,7 +62,6 @@
                     <li><a href="{{ route('pages.contact') }}" class="hover:text-green-600 transition">Hubungi Kami</a></li>
                     <li><a href="{{ route('pages.support') }}" class="hover:text-green-600 transition">Pusat Bantuan</a></li>
                     <li><a href="{{ route('pages.faq') }}" class="hover:text-green-600 transition">Tanya Jawab (FAQ)</a></li>
-                    <li><a href="{{ route('pages.return_request') }}" class="hover:text-green-600 transition">Pengajuan Retur Barang</a></li>
                     <li><a href="{{ route('customer.complaint.create') }}" class="hover:text-green-600 transition">Pengajuan Keluhan</a></li>
                 </ul>
             </div>

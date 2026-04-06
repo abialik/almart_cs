@@ -54,7 +54,7 @@ class ReturnController extends Controller
             $path = $file->storeAs('returns', $filename, 'public');
         }
 
-        ProductReturn::create([
+        $productReturn = ProductReturn::create([
             'order_id'    => $order->id,
             'customer_id' => Auth::id(),
             'reason'      => $request->reason,

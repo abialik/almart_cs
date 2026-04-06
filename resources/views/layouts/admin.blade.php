@@ -86,6 +86,15 @@
                 Keluhan Pelanggan
             </a>
 
+            <a href="{{ route('admin.returns.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
+               {{ request()->routeIs('admin.returns.*')
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                    : 'hover:bg-gray-100 text-gray-800' }}">
+                <i data-lucide="refresh-ccw" class="w-5 h-5"></i>
+                Pengembalian Barang
+            </a>
+
         </nav>
 
 

@@ -329,6 +329,37 @@
         });
     }
 
+    // Laravel Echo Configuration for Reverb
+    window.Pusher = Pusher;
+    if (typeof Echo !== 'undefined') {
+        window.Echo = new Echo({
+            broadcaster: 'reverb',
+            key: "{{ env('VITE_REVERB_APP_KEY') }}",
+            wsHost: "{{ env('VITE_REVERB_HOST') }}",
+            wsPort: "{{ env('VITE_REVERB_PORT') }}",
+            wssPort: "{{ env('VITE_REVERB_PORT') }}",
+            forceTLS: "{{ env('VITE_REVERB_SCHEME') }}" === 'https',
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        // Listen for Real-time Events
+        window.Echo.channel('admin-notifications')
+            .listen('.new-order', (e) => {
+                console.log('New Order Received (Petugas):', e);
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: `Ada Pesanan Baru: ${e.order.order_code}`,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    timerProgressBar: true
+                });
+                
+                // Optional: Play a sound or refresh partially
+            });
+    }
+
     function confirmSelesaiPicking(id) {
         Swal.fire({
             title: 'Selesai Picking?',
