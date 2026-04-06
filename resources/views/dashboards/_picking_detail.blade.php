@@ -6,10 +6,9 @@
             <p class="text-sm font-semibold text-gray-500 mt-1">{{ $order->customer->name ?? $order->full_name }}</p>
         </div>
         
-        <form action="{{ route('petugas.orders.update-status', $order->id) }}" method="POST" id="form-selesai-picking-{{ $order->id }}">
+        <form action="{{ route('petugas.orders.complete-picking', $order->id) }}" method="POST" id="form-selesai-picking-{{ $order->id }}">
             @csrf
             @method('PATCH')
-            <input type="hidden" name="status" value="delivered">
             <button type="button" onclick="confirmSelesaiPicking({{ $order->id }})" id="btn-selesai-{{ $order->id }}" class="px-6 py-2.5 rounded-full text-sm font-bold bg-pink-100 text-pink-400 cursor-not-allowed transition-all duration-300 flex items-center gap-2 shadow-sm" disabled>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 Selesai Picking

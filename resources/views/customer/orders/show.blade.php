@@ -34,10 +34,21 @@
                 {{ $order->status }}
             </span>
             @if($order->status === 'pending')
-                 <a href="{{ route('customer.checkout.payment', $order->id) }}" 
-                    class="px-5 py-2 bg-white text-gray-900 text-xs font-black rounded-full shadow-lg hover:bg-gray-100 transition tracking-widest">
-                    BAYAR SEKARANG
-                </a>
+                <div class="flex items-center gap-3">
+                    <form id="cancel-order-form" action="{{ route('customer.orders.cancel', $order->id) }}" method="POST" class="hidden">
+                        @csrf
+                    </form>
+                    <button type="button" 
+                            id="btn-cancel-order"
+                            onclick="confirmCancelOrder()" 
+                            class="px-5 py-2 bg-rose-500/10 text-rose-100 border border-rose-400/30 text-xs font-black rounded-full hover:bg-rose-500/20 transition tracking-widest uppercase cursor-pointer">
+                        BATALKAN
+                    </button>
+                    <a href="{{ route('customer.checkout.payment', $order->id) }}" 
+                        class="px-5 py-2 bg-white text-gray-900 text-xs font-black rounded-full shadow-lg hover:bg-gray-100 transition tracking-widest uppercase">
+                        BAYAR SEKARANG
+                    </a>
+                </div>
             @endif
         </div>
     </div>
@@ -201,26 +212,51 @@
             {{-- RIGHT COLUMN: ADDRESS & PAYMENT --}}
             <div class="space-y-6">
                 
-                {{-- SHIPPING --}}
+                {{-- SHIPPING / PICKUP INFO --}}
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-                     <h3 class="font-bold text-gray-900 mb-5 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        </svg>
-                        Alamat Pengiriman
-                    </h3>
-                    <div class="text-sm text-gray-600 leading-relaxed">
-                        <p class="font-black text-gray-900 text-base mb-2 uppercase tracking-tight">{{ $order->full_name }}</p>
-                        <p>{{ $order->address }}</p>
-                        <p>{{ $order->city }}, {{ $order->post_code }}</p>
-                        <p>{{ $order->province }}</p>
-                        <div class="mt-4 pt-4 border-t border-gray-50 flex items-center gap-2 text-gray-400 italic">
-                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1.01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                     @if($order->shipping_type === 'pickup')
+                        <h3 class="font-bold text-gray-900 mb-5 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                             </svg>
-                            {{ $order->phone }}
+                            Informasi Ambil di Toko
+                        </h3>
+                        <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100 mb-4 text-center">
+                            <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Kode Pickup Anda</p>
+                            <p class="text-3xl font-black text-blue-700 tracking-[0.2em] font-mono leading-none">{{ $order->pickup_code }}</p>
+                            <p class="text-[11px] font-bold text-blue-500 mt-4 leading-relaxed">Tunjukkan kode unik ini kepada petugas kasir Almart untuk mengambil barang belanjaan Anda.</p>
                         </div>
-                    </div>
+                        <div class="text-sm text-gray-600 leading-relaxed border-t border-gray-50 pt-4">
+                            <p class="font-black text-gray-900 text-base mb-1 uppercase tracking-tight">{{ $order->full_name }}</p>
+                            <p class="text-xs text-gray-400 flex items-center gap-2">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                {{ $order->phone }}
+                            </p>
+                            <div class="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-start gap-2.5">
+                                <svg class="w-4 h-4 text-gray-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <p class="text-[11px] text-gray-500 italic">Pesanan dapat diambil di gerai Almart terdekat setelah status berubah menjadi "Siap Diambil".</p>
+                            </div>
+                        </div>
+                     @else
+                        <h3 class="font-bold text-gray-900 mb-5 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            </svg>
+                            Alamat Pengiriman
+                        </h3>
+                        <div class="text-sm text-gray-600 leading-relaxed">
+                            <p class="font-black text-gray-900 text-base mb-2 uppercase tracking-tight">{{ $order->full_name }}</p>
+                            <p>{{ $order->address }}</p>
+                            <p>{{ $order->city }}, {{ $order->post_code }}</p>
+                            <p>{{ $order->province }}</p>
+                            <div class="mt-4 pt-4 border-t border-gray-50 flex items-center gap-2 text-gray-400 italic">
+                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1.01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                {{ $order->phone }}
+                            </div>
+                        </div>
+                     @endif
                 </div>
 
                 {{-- PAYMENT INFO --}}
@@ -279,3 +315,29 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    function confirmCancelOrder() {
+        Swal.fire({
+            title: 'Batalkan Pesanan?',
+            text: "Tindakan ini tidak dapat dibatalkan dan stok produk akan dikembalikan.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f43f5e',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Batalkan!',
+            cancelButtonText: 'Kembali',
+            customClass: {
+                popup: 'rounded-[2rem] p-8 border-none font-plus-jakarta',
+                confirmButton: 'rounded-xl font-bold px-8 py-3',
+                cancelButton: 'rounded-xl font-bold px-8 py-3'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('cancel-order-form').submit();
+            }
+        })
+    }
+</script>
+@endpush

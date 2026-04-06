@@ -47,11 +47,48 @@ class OrderController extends Controller
             ->with(['payment', 'items.product']);
 
         if ($status && $status !== 'all') {
-            $query->where('status', $status);
+            if ($status === 'processing') {
+                $query->whereIn('status', ['paid', 'processing']);
+            } elseif ($status === 'delivering') {
+                $query->whereIn('status', ['delivering', 'ready_for_pickup']);
+            } elseif ($status === 'completed') {
+                $query->where('status', 'delivered');
+            } else {
+                $query->where('status', $status);
+            }
         }
 
         $orders = $query->latest()->get();
 
         return view('customer.orders.status', compact('orders', 'status'));
+    }
+
+    /**
+     * Cancel the specified order (only if pending).
+     */
+    public function cancel(Order $order)
+    {
+        // Ensure the order belongs to the authenticated customer
+        if ($order->customer_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Only allowed to cancel if status is 'pending'
+        if ($order->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pesanan ini tidak dapat dibatalkan karena sudah dalam proses.');
+        }
+
+        // Increment stock back
+        foreach ($order->items as $item) {
+            if ($item->product) {
+                $item->product->increment('stock', $item->qty);
+            }
+        }
+
+        // Update status
+        $order->update(['status' => 'cancelled']);
+
+        return redirect()->route('customer.orders.status', ['s' => 'cancelled'])
+            ->with('success', 'Pesanan ' . $order->order_code . ' berhasil dibatalkan.');
     }
 }

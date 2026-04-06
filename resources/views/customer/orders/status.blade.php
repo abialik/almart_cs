@@ -45,7 +45,7 @@
                                     $statuses = [
                                         'pending'    => 'Menunggu Pembayaran',
                                         'processing' => 'Sedang Diproses',
-                                        'delivered'  => 'Dikirim',
+                                        'delivering' => 'Dikirim',
                                         'completed'  => 'Selesai',
                                         'cancelled'  => 'Batal',
                                     ];
@@ -88,7 +88,7 @@
                         </a>
                         @foreach($statuses as $key => $label)
                             <a href="{{ route('customer.orders.status', ['s' => $key]) }}" 
-                               class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition duration-300 {{ $status === $key ? 'bg-pink-500 text-white shadow-lg shadow-pink-100' : 'text-gray-400 hover:bg-gray-50' }}">
+                               class="inline-block px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition duration-300 {{ $status === $key ? 'bg-pink-500 text-white shadow-lg shadow-pink-100' : 'text-gray-400 hover:bg-gray-50' }}">
                                 {{ $label }}
                             </a>
                         @endforeach
@@ -104,9 +104,27 @@
                             <div class="bg-gray-50/50 px-8 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
                                 <div class="flex items-center gap-4">
                                     <p class="text-xs font-bold text-gray-900">{{ $order->created_at->format('d M Y - H:i') }} WIB</p>
-                                    <span class="px-3 py-1 bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest rounded-full">
-                                        {{ $order->status === 'pending' ? 'Menunggu Pembayaran' : $order->status }}
+                                    @php
+                                        $statusLabels = [
+                                            'pending'    => ['label' => 'Menunggu Pembayaran', 'class' => 'bg-amber-100 text-amber-700'],
+                                            'paid'       => ['label' => 'Sudah Dibayar', 'class' => 'bg-emerald-100 text-emerald-700'],
+                                            'processing' => ['label' => 'Sedang Diproses', 'class' => 'bg-blue-100 text-blue-700'],
+                                            'delivering' => ['label' => 'Dalam Pengiriman', 'class' => 'bg-purple-100 text-purple-700'],
+                                            'ready_for_pickup' => ['label' => 'Siap Diambil', 'class' => 'bg-emerald-100 text-emerald-700'],
+                                            'delivered'  => ['label' => 'Selesai', 'class' => 'bg-gray-100 text-gray-700'],
+                                            'cancelled'  => ['label' => 'Dibatalkan', 'class' => 'bg-red-100 text-red-700'],
+                                        ];
+                                        $currentStatus = $statusLabels[$order->status] ?? ['label' => $order->status, 'class' => 'bg-gray-100 text-gray-700'];
+                                    @endphp
+                                    <span class="px-3 py-1 {{ $currentStatus['class'] }} text-[9px] font-black uppercase tracking-widest rounded-full">
+                                        {{ $currentStatus['label'] }}
                                     </span>
+                                    @if($order->shipping_type === 'pickup')
+                                        <span class="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-100 text-[9px] font-black uppercase tracking-widest rounded-full flex items-center gap-1">
+                                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                                            Ambil di Toko
+                                        </span>
+                                    @endif
                                 </div>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                     Bayar Sebelum <span class="text-red-500">{{ $order->created_at->addDay()->format('d M Y, H:i') }} WIB</span>

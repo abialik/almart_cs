@@ -72,6 +72,7 @@ class CheckoutController extends Controller
             'province'      => 'required_without:address_id|nullable|string|max:100',
             'phone'         => 'required_without:address_id|nullable|string|max:20',
             'payment_method'=> 'required|in:transfer,ewallet,qris,cod',
+            'shipping_type' => 'required|in:delivery,pickup',
             'items'         => 'required|array',
             'items.*'       => 'exists:cart_items,id'
         ]);
@@ -152,14 +153,21 @@ class CheckoutController extends Controller
         $total       = $subtotal + $shippingFee;
 
         // Buat order
-        $order = Order::create(array_merge([
-            'order_code'  => 'ORD-' . strtoupper(Str::random(8)),
-            'customer_id' => Auth::id(),
-            'subtotal'    => $subtotal,
-            'shipping_fee'=> $shippingFee,
-            'total'       => $total,
-            'status'      => 'pending',
-        ], $addressData));
+        $orderData = array_merge([
+            'order_code'    => 'ORD-' . strtoupper(Str::random(8)),
+            'customer_id'   => Auth::id(),
+            'subtotal'      => $subtotal,
+            'shipping_fee'  => $shippingFee,
+            'total'         => $total,
+            'status'        => 'pending',
+            'shipping_type' => $request->shipping_type,
+        ], $addressData);
+
+        if ($request->shipping_type === 'pickup') {
+            $orderData['pickup_code'] = Order::generatePickupCode();
+        }
+
+        $order = Order::create($orderData);
 
         // Trigger Real-time Event for Admin
         event(new NewOrderEvent($order));

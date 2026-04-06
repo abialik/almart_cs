@@ -76,6 +76,9 @@ Route::middleware(['auth', 'active', 'role:customer'])
         Route::get('/order-status', [OrderController::class, 'status'])
             ->name('orders.status');
 
+        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])
+            ->name('orders.cancel');
+
         // WISHLIST
         Route::get('/wishlist', [WishlistController::class, 'index'])
             ->name('wishlist.index');
@@ -176,7 +179,13 @@ Route::middleware(['auth', 'active', 'role:petugas'])
         Route::get('/orders/{order}/picking-detail', [\App\Http\Controllers\PetugasDashboardController::class, 'showPicking'])->name('orders.picking-detail');
         
         // UPDATE STATUS
-        Route::patch('/orders/{order}/status', [\App\Http\Controllers\AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::patch('/orders/{order}/status', [\App\Http\Controllers\PetugasDashboardController::class, 'updateStatus'])->name('orders.update-status');
+        
+        // COMPLETE PICKING
+        Route::patch('/orders/{order}/complete-picking', [\App\Http\Controllers\PetugasDashboardController::class, 'completePicking'])->name('orders.complete-picking');
+
+        // PICKUP VALIDATION
+        Route::post('/orders/validate-pickup', [\App\Http\Controllers\PetugasDashboardController::class, 'validatePickup'])->name('orders.validate-pickup');
     });
 
 

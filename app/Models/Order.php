@@ -11,6 +11,9 @@ class Order extends Model
 
     protected $fillable = [
         'order_code',
+        'shipping_type',
+        'pickup_code',
+        'pickup_note',
         'customer_id',
         'petugas_id',
         'subtotal',
@@ -25,6 +28,18 @@ class Order extends Model
         'province',
         'phone',
     ];
+
+    /**
+     * Generate a unique pickup code (e.g. PICK-1234)
+     */
+    public static function generatePickupCode()
+    {
+        do {
+            $code = 'PICK-' . rand(1000, 9999);
+        } while (self::where('pickup_code', $code)->exists());
+
+        return $code;
+    }
 
     public function customer()
     {

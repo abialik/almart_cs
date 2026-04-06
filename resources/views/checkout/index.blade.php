@@ -117,6 +117,42 @@
             {{-- ========== RIGHT: BILLING + PAYMENT ========== --}}
             <div class="space-y-6">
 
+                {{-- Shipping Method --}}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-5">Metode Pengambilan</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        {{-- Delivery Card --}}
+                        <label class="shipping-method-card group flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all border-pink-500 bg-pink-50" for="ship_delivery">
+                            <input type="radio" name="shipping_type" id="ship_delivery" value="delivery" class="hidden shipping-method-input" checked>
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                                <span class="text-xl">🚚</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-800 text-sm leading-tight">Home Delivery</p>
+                                <p class="text-gray-400 text-[10px] mt-0.5">Antar ke rumah</p>
+                            </div>
+                            <svg class="w-5 h-5 text-pink-500 shrink-0 check-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </label>
+
+                        {{-- Pick-up Card --}}
+                        <label class="shipping-method-card group flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all border-gray-200 hover:border-pink-300 hover:bg-pink-50/40" for="ship_pickup">
+                            <input type="radio" name="shipping_type" id="ship_pickup" value="pickup" class="hidden shipping-method-input">
+                            <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+                                <span class="text-xl">📦</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-800 text-sm leading-tight">Ambil di Toko</p>
+                                <p class="text-gray-400 text-[10px] mt-0.5">Gratis biaya kirim</p>
+                            </div>
+                            <svg class="w-5 h-5 text-pink-500 shrink-0 check-icon hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </label>
+                    </div>
+                </div>
+
                 {{-- Billing Details --}}
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center justify-between mb-5">
@@ -430,6 +466,47 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const radio = card.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
+        });
+    });
+
+    // Shipping method selection
+    const shippingCards = document.querySelectorAll('.shipping-method-card');
+    const shippingInputs = document.querySelectorAll('.shipping-method-input');
+    // Find billing title robustly
+    const billingTitle = Array.from(document.querySelectorAll('h3')).find(el => el.textContent.trim() === 'Billing Details');
+    
+    shippingCards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Reset all
+            shippingCards.forEach(c => {
+                c.classList.remove('border-pink-500', 'bg-pink-50');
+                c.classList.add('border-gray-200');
+                c.querySelector('.check-icon').classList.add('hidden');
+                c.querySelector('.check-icon').classList.remove('block');
+            });
+            // Activate clicked
+            card.classList.add('border-pink-500', 'bg-pink-50');
+            card.classList.remove('border-gray-200');
+            card.querySelector('.check-icon').classList.remove('hidden');
+            card.querySelector('.check-icon').classList.add('block');
+            
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+                // Update UI based on selection if needed
+                const pickupInfo = document.getElementById('pickupInfoMessage');
+                if (radio.value === 'pickup') {
+                    if (!pickupInfo) {
+                        const msg = document.createElement('div');
+                        msg.id = 'pickupInfoMessage';
+                        msg.className = 'mt-4 p-4 bg-orange-50 border border-orange-100 rounded-xl text-xs text-orange-700 leading-relaxed animate-fade-in';
+                        msg.innerHTML = '<strong>Informasi Pick-up:</strong> Silakan lengkapi identitas pengambil di bawah. Pesanan dapat diambil di toko setelah status berubah menjadi "Siap Diambil".';
+                        card.closest('.bg-white').appendChild(msg);
+                    }
+                } else {
+                    if (pickupInfo) pickupInfo.remove();
+                }
+            }
         });
     });
 

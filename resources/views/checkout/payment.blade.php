@@ -109,6 +109,32 @@
                 </div>
             </div>
 
+            {{-- Pickup Code Information (If Pickup) --}}
+            @if($order->shipping_type === 'pickup')
+            <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-xl shadow-blue-100 relative overflow-hidden group">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition duration-500"></div>
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                             <div class="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                             </div>
+                             <h4 class="text-xs font-black uppercase tracking-widest text-blue-100">Informasi Ambil di Toko</h4>
+                        </div>
+                        <p class="text-sm text-blue-50 leading-relaxed max-w-sm">Tunjukkan kode ini kepada petugas saat mengambil pesanan setelah status berubah menjadi <span class="font-bold text-white">"Siap Diambil"</span>.</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 flex flex-col items-center min-w-[160px] cursor-copy active:scale-95 transition-transform" onclick="copyText('{{ $order->pickup_code }}', this)">
+                        <p class="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-1">Kode Pickup Anda</p>
+                        <p class="text-3xl font-black text-white tracking-[0.2em] font-mono leading-none">{{ $order->pickup_code }}</p>
+                        <p class="text-[9px] font-bold text-blue-100 mt-2 flex items-center gap-1 opacity-70">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                            Klik untuk salin
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             {{-- Order Items --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
