@@ -33,9 +33,15 @@ class NewsletterController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $subscriptions = NewsletterSubscription::latest()->paginate(20);
+        $query = NewsletterSubscription::latest();
+
+        if ($request->filled('search')) {
+            $query->where('email', 'like', '%' . $request->search . '%');
+        }
+
+        $subscriptions = $query->paginate(20)->withQueryString();
         return view('admin.newsletters.index', compact('subscriptions'));
     }
 

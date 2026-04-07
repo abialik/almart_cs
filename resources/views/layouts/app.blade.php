@@ -40,6 +40,10 @@
 
         <div class="flex items-center gap-8 text-sm">
             @if(auth()->user()->role === 'admin')
+                <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
+                    <i data-lucide="clock" class="w-4 h-4 text-pink-500"></i>
+                    <span id="realtime-clock" class="font-black text-gray-700 tracking-wider tabular-nums">--:--:--</span>
+                </div>
                 <a href="{{ route('admin.dashboard') }}" class="font-bold text-gray-500 hover:text-rose-500 transition">Dashboard Admin</a>
             @elseif(auth()->user()->role === 'customer')
                 <a href="{{ route('shop.home') }}" class="font-bold text-gray-500 hover:text-emerald-500 transition">Beranda</a>
@@ -86,6 +90,53 @@
     @if(session('error'))
         Toast.fire({ icon: 'error', title: "{{ session('error') }}" });
     @endif
+
+    // --- REAL-TIME NOTIFICATIONS ---
+    if (typeof Echo !== 'undefined') {
+        window.Echo = new Echo({
+            broadcaster: 'reverb',
+            key: "{{ env('VITE_REVERB_APP_KEY') }}",
+            wsHost: "{{ env('VITE_REVERB_HOST') }}",
+            wsPort: "{{ env('VITE_REVERB_PORT') }}",
+            wssPort: "{{ env('VITE_REVERB_PORT') }}",
+            forceTLS: "{{ env('VITE_REVERB_SCHEME') }}" === 'https',
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        window.Echo.channel('admin-notifications')
+            .listen('.order-status-updated', (e) => {
+                Toast.fire({
+                    icon: e.order.status === 'cancelled' ? 'warning' : 'info',
+                    title: e.message || `Status pesanan ${e.order.order_code} diperbarui.`
+                });
+                
+                // Refresh partially if on orders page
+                if (window.location.pathname.includes('orders')) {
+                     // small delay for DB consistency
+                     setTimeout(() => window.location.reload(), 2000);
+                }
+            });
+    }
+
+    // --- REAL-TIME CLOCK SCRIPT ---
+    (function() {
+        // Init with server time (UTC+7)
+        let serverTime = new Date("{{ now()->toIso8601String() }}");
+        
+        function updateClock() {
+            serverTime.setSeconds(serverTime.getSeconds() + 1);
+            const clockEl = document.getElementById('realtime-clock');
+            if (clockEl) {
+                const hours = String(serverTime.getHours()).padStart(2, '0');
+                const minutes = String(serverTime.getMinutes()).padStart(2, '0');
+                const seconds = String(serverTime.getSeconds()).padStart(2, '0');
+                clockEl.innerText = `${hours}:${minutes}:${seconds}`;
+            }
+        }
+        
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial run
+    })();
 </script>
 
 </body>

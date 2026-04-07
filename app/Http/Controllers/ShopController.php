@@ -15,6 +15,15 @@ class ShopController extends Controller
     */
     public function index(Request $request)
     {
+        // Redirect Admin and Petugas to their respective dashboards
+        if (auth()->check()) {
+            if (auth()->user()->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            } elseif (auth()->user()->role === 'petugas') {
+                return redirect()->route('petugas.dashboard');
+            }
+        }
+
         $products = $this->filterProducts($request)
             ->latest()
             ->paginate(15)

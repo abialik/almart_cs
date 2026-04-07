@@ -73,29 +73,44 @@
             {{-- Status indicator glow line --}}
             <div class="absolute left-0 top-0 bottom-0 w-2 opacity-80 group-hover:opacity-100 transition-opacity {{ $order->status === 'paid' ? 'bg-gradient-to-b from-blue-400 to-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : ($order->status === 'processing' ? 'bg-gradient-to-b from-amber-400 to-amber-600 shadow-[0_0_15px_rgba(251,191,36,0.5)]' : 'bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.5)]') }}"></div>
 
-            <div class="pl-4">
-                <div class="flex items-center gap-3 mb-2.5">
-                    <span class="font-bold text-gray-900 text-base tracking-wide">{{ $order->order_code }}</span>
-                    
-                    @if($order->status === 'paid')
-                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-widest whitespace-nowrap">Baru Masuk</span>
-                    @elseif($order->status === 'processing')
-                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-widest whitespace-nowrap">Diproses</span>
-                    @elseif($order->status === 'delivered')
-                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-widest whitespace-nowrap">Selesai</span>
+            <div class="pl-4 flex items-center gap-6">
+                {{-- Product Thumbnail (First Item) --}}
+                <div class="hidden sm:flex w-16 h-16 bg-gray-50 rounded-2xl border border-gray-100 items-center justify-center p-2 shrink-0 group-hover:scale-105 transition-transform duration-500">
+                    @if($order->items->first() && $order->items->first()->product && $order->items->first()->product->image)
+                        <img src="{{ asset($order->items->first()->product->image) }}" class="max-w-full max-h-full object-contain">
+                    @else
+                        <i data-lucide="image" class="w-6 h-6 text-gray-200"></i>
                     @endif
-
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold border border-gray-100 text-gray-500 bg-gray-50 uppercase tracking-widest">Delivery</span>
                 </div>
-                
-                <p class="text-sm text-gray-500 mb-1.5">Pelanggan: <span class="font-bold text-gray-900">{{ $order->customer->name ?? $order->full_name }}</span></p>
-                
-                <div class="flex items-center gap-3 text-[13px] text-gray-500 font-semibold">
-                    <span class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{{ $order->items->count() }} Item</span>
-                    <span class="text-gray-300">•</span>
-                    <span class="text-pink-500 font-bold">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
-                    <span class="text-gray-300">•</span>
-                    <span class="flex items-center gap-1 text-gray-400 hover:text-gray-600 transition"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $order->updated_at->diffForHumans() }}</span>
+
+                <div>
+                    <div class="flex items-center gap-3 mb-2.5">
+                        <span class="font-bold text-gray-900 text-base tracking-wide">{{ $order->order_code }}</span>
+                        
+                        @if($order->status === 'paid')
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-widest whitespace-nowrap">Baru Masuk</span>
+                        @elseif($order->status === 'processing')
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-widest whitespace-nowrap">Diproses</span>
+                        @elseif($order->status === 'ready_for_pickup')
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-violet-50 text-violet-600 border border-violet-100 uppercase tracking-widest whitespace-nowrap">Siap Diambil</span>
+                        @elseif($order->status === 'delivered')
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-widest whitespace-nowrap">Selesai</span>
+                        @elseif($order->status === 'cancelled')
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-widest whitespace-nowrap">Dibatalkan</span>
+                        @endif
+
+                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold border border-gray-100 text-gray-500 bg-gray-50 uppercase tracking-widest">Delivery</span>
+                    </div>
+                    
+                    <p class="text-sm text-gray-500 mb-1.5">Pelanggan: <span class="font-bold text-gray-900">{{ $order->customer->name ?? $order->full_name }}</span></p>
+                    
+                    <div class="flex items-center gap-3 text-[13px] text-gray-500 font-semibold">
+                        <span class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{{ $order->items->count() }} Item</span>
+                        <span class="text-gray-300">•</span>
+                        <span class="text-pink-500 font-bold">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
+                        <span class="text-gray-300">•</span>
+                        <span class="flex items-center gap-1 text-gray-400 hover:text-gray-600 transition"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $order->updated_at->diffForHumans() }}</span>
+                    </div>
                 </div>
             </div>
 

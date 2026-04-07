@@ -19,7 +19,13 @@
             </ol>
         </nav>
         <h1 class="text-4xl font-black text-gray-900 tracking-tight">Daftar Berlangganan Newsletter</h1>
-        <p class="text-sm text-gray-500 mt-2 font-medium">Kumpulan kontak email pelanggan yang tertarik dengan promo Toko Almart Anda.</p>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+            <p class="text-sm text-gray-500 font-medium">Kumpulan kontak email pelanggan yang tertarik dengan promo Toko Almart Anda.</p>
+            <form action="{{ url()->current() }}" method="GET" class="relative group">
+                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari email..." class="bg-gray-100/50 border border-gray-100 rounded-2xl pl-11 pr-4 py-2.5 text-xs font-bold text-gray-700 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all w-full md:w-64 shadow-sm shadow-blue-50/50">
+            </form>
+        </div>
     </div>
 </div>
 

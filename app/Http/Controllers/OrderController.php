@@ -58,7 +58,7 @@ class OrderController extends Controller
             }
         }
 
-        $orders = $query->latest()->get();
+        $orders = $query->latest()->paginate(10)->withQueryString();
 
         return view('customer.orders.status', compact('orders', 'status'));
     }

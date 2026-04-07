@@ -30,15 +30,25 @@ class PetugasDashboardController extends Controller
         $countSelesai = (clone $query)->where('status', 'delivered')->whereDate('updated_at', today())->count();
         $countSemua = $countBaru + $countDiproses + $countDelivery + $countReadyForPickup; // Terhitung aktif
 
-        // Filter berdasarkan tab aktif dan filter aktif
-        if ($filter === 'baru') {
-            $query->where('status', 'paid');
-        } elseif ($filter === 'diproses') {
-             $query->where('status', 'processing');
-        } elseif ($filter === 'selesai') {
-             $query->where('status', 'delivered');
-        } else {
-             $query->whereIn('status', ['paid', 'processing', 'delivering', 'ready_for_pickup']);
+        // Filter berdasarkan tab aktif
+        if ($tab === 'pesanan') {
+            if ($filter === 'baru') {
+                $query->where('status', 'paid');
+            } elseif ($filter === 'diproses') {
+                $query->where('status', 'processing');
+            } elseif ($filter === 'selesai') {
+                $query->where('status', 'delivered');
+            } else {
+                $query->whereIn('status', ['paid', 'processing', 'delivered']);
+            }
+        } elseif ($tab === 'picking') {
+            $query->where('status', 'processing');
+        } elseif ($tab === 'delivery') {
+            if ($subtab === 'delivery_list') {
+                $query->where('status', 'delivering');
+            } else {
+                $query->where('status', 'ready_for_pickup');
+            }
         }
 
         $orders = $query->paginate(20)->withQueryString();
@@ -99,6 +109,20 @@ class PetugasDashboardController extends Controller
                     $item->product->increment('stock', $item->qty);
                 }
             }
+        }
+
+        // --- DISPATCH REAL-TIME NOTIFICATION ---
+        $message = "";
+        if ($request->status === 'cancelled') {
+            $message = "Pesanan {$order->order_code} telah ditolak oleh petugas.";
+        } elseif ($request->status === 'processing') {
+            $message = "Pesanan {$order->order_code} sedang diproses oleh petugas.";
+        } elseif ($request->status === 'delivered') {
+            $message = "Pesanan {$order->order_code} telah berhasil diselesaikan.";
+        }
+
+        if ($message) {
+            event(new \App\Events\OrderStatusUpdatedEvent($order, $message));
         }
 
         return redirect()->back()->with('success', 'Status pesanan ' . $order->order_code . ' berhasil diperbarui.');

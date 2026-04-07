@@ -36,7 +36,7 @@ class AdminProductController extends Controller
             }
         }
 
-        $products = $query->paginate(12);
+        $products = $query->paginate(12)->withQueryString();
 
         // Stats Calculation
         $allProducts = Product::all();

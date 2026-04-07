@@ -3,11 +3,29 @@
 @section('title', 'Keluhan Pelanggan')
 
 @section('content')
-<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <div>
-        <h2 class="text-2xl font-black text-gray-900 tracking-tight">Keluhan Pelanggan</h2>
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+    <div class="shrink-0">
+        <h2 class="text-2xl font-black text-gray-900 tracking-tight leading-tight">Keluhan Pelanggan</h2>
         <p class="text-sm text-gray-500 mt-1">Kelola dan tanggapi keluhan dari pelanggan Anda.</p>
     </div>
+
+    <!-- Filter Form -->
+    <form action="{{ url()->current() }}" method="GET" class="flex flex-col md:flex-row flex-1 items-center gap-4 w-full justify-end">
+        <div class="relative w-full md:max-w-xs">
+            <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau deskripsi..." class="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-xs font-semibold text-gray-700 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none">
+        </div>
+
+        <div class="relative w-full md:w-40">
+            <select name="status" onchange="this.form.submit()" class="w-full pl-4 pr-10 py-2.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-xs font-bold text-gray-700 focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none cursor-pointer">
+                <option value="">Semua Status</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                <option value="responded" {{ request('status') == 'responded' ? 'selected' : '' }}>Ditanggapi</option>
+                <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Selesai</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+        </div>
+    </form>
 </div>
 
 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">

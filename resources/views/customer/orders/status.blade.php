@@ -47,7 +47,7 @@
                                         'processing' => 'Sedang Diproses',
                                         'delivering' => 'Dikirim',
                                         'completed'  => 'Selesai',
-                                        'cancelled'  => 'Batal',
+                                        'cancelled'  => 'Ditolak / Batal',
                                     ];
                                 @endphp
                                 @foreach($statuses as $key => $label)
@@ -112,7 +112,7 @@
                                             'delivering' => ['label' => 'Dalam Pengiriman', 'class' => 'bg-purple-100 text-purple-700'],
                                             'ready_for_pickup' => ['label' => 'Siap Diambil', 'class' => 'bg-emerald-100 text-emerald-700'],
                                             'delivered'  => ['label' => 'Selesai', 'class' => 'bg-gray-100 text-gray-700'],
-                                            'cancelled'  => ['label' => 'Dibatalkan', 'class' => 'bg-red-100 text-red-700'],
+                                            'cancelled'  => ['label' => 'Dibatalkan / Ditolak', 'class' => 'bg-red-100 text-red-700'],
                                         ];
                                         $currentStatus = $statusLabels[$order->status] ?? ['label' => $order->status, 'class' => 'bg-gray-100 text-gray-700'];
                                     @endphp
@@ -177,6 +177,13 @@
                         </div>
                     @endforelse
                 </div>
+
+                {{-- Pagination --}}
+                @if($orders->hasPages())
+                <div class="mt-8 flex justify-center">
+                    {{ $orders->links() }}
+                </div>
+                @endif
 
             </main>
 

@@ -172,6 +172,11 @@
                                     <p class="text-sm font-bold text-gray-900">Selesai / Terkirim</p>
                                     <p class="text-xs text-gray-400 mt-0.5">Pesanan sudah sampai di tujuan</p>
                                 </div>
+                            @elseif($order->status === 'cancelled')
+                                <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-gray-100 border-4 border-white z-10"></div>
+                                <div class="opacity-50">
+                                    <p class="text-sm font-bold text-gray-400">Diterima</p>
+                                </div>
                             @else
                                 <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-gray-100 border-4 border-white z-10"></div>
                                 <div class="opacity-50">
@@ -179,6 +184,21 @@
                                 </div>
                             @endif
                         </div>
+
+                        {{-- Step: Cancelled (Special Case) --}}
+                        @if($order->status === 'cancelled')
+                        <div class="relative">
+                            <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-rose-500 border-4 border-rose-50 shadow-sm z-10"></div>
+                            <div>
+                                <p class="text-sm font-bold text-rose-600 uppercase tracking-tight">Pesanan Dibatalkan / Ditolak</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Mohon maaf, pesanan Anda tidak dapat dilanjutkan oleh pihak Almart.</p>
+                                <div class="mt-4 p-4 bg-rose-50 rounded-2xl border border-rose-100 flex items-start gap-3">
+                                     <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                     <p class="text-xs text-rose-700 font-medium leading-relaxed">Dana yang sudah dibayarkan (jika ada) akan dikembalikan melalui saldo akun atau metode pembayaran asal. Silakan hubungi Customer Service kami untuk bantuan lebih lanjut.</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
 
                         {{-- Step: Return (If Exists) --}}
                         @if($order->returns->isNotEmpty())

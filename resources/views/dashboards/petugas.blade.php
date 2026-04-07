@@ -19,6 +19,12 @@
         </div>
 
         <div class="flex items-center gap-6">
+            {{-- Real-time Clock --}}
+            <div class="hidden md:flex items-center gap-2.5 bg-white/50 backdrop-blur px-4 py-2 rounded-2xl border border-white/50 shadow-sm">
+                <div class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></div>
+                <span id="realtime-clock" class="text-sm font-black text-gray-700 tracking-[0.1em] tabular-nums">--:--:--</span>
+            </div>
+
             {{-- Notification --}}
             <button class="relative text-gray-400 hover:text-gray-600 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>

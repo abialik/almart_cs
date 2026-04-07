@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/pusher-js@8.3.0/dist/web/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.min.js"></script>
     <style>
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -23,18 +25,26 @@
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-10">
 
         <!-- LOGO -->
-        <a href="/" class="flex items-center gap-3 group">
-            <img src="{{ asset('images/logo.png') }}" class="h-10 w-auto">
-            <div class="leading-tight">
-                <p class="font-bold text-lg text-gray-900 group-hover:text-rose-500 transition">
-                    Almart
-                </p>
-                <p class="text-xs text-gray-500">
-                    {{-- Segar Setiap Hari untuk hidup anda --}}
-                    Segar Setiap Hari untuk hidup anda
-                </p>
+        <div class="flex items-center gap-6">
+            <a href="/" class="flex items-center gap-3 group">
+                <img src="{{ asset('images/logo.png') }}" class="h-10 w-auto">
+                <div class="leading-tight">
+                    <p class="font-bold text-lg text-gray-900 group-hover:text-rose-500 transition">
+                        Almart
+                    </p>
+                    <p class="text-xs text-gray-500 font-medium">
+                        {{-- Segar Setiap Hari untuk hidup anda --}}
+                        Segar Setiap Hari
+                    </p>
+                </div>
+            </a>
+            
+            {{-- Real-time Clock --}}
+            <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-100 text-gray-400">
+                <div class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></div>
+                <span id="realtime-clock" class="text-[10px] font-black tracking-widest tabular-nums uppercase">--:--:--</span>
             </div>
-        </a>
+        </div>
 
         <!-- SEARCH -->
         <form action="/" method="GET" class="flex flex-1 max-w-2xl relative">
@@ -405,6 +415,57 @@
 
         // Initialize banner form only (Footer footer-subscribe-btn removed in footer.blade.php)
         initNewsletter('subscribe-btn', 'newsletter-form', 'newsletter-email');
+
+        // --- REAL-TIME CUSTOMER NOTIFICATIONS ---
+        if (typeof Echo !== 'undefined' && @auth true @else false @endauth) {
+            window.Echo = new Echo({
+                broadcaster: 'reverb',
+                key: "{{ env('VITE_REVERB_APP_KEY') }}",
+                wsHost: "{{ env('VITE_REVERB_HOST') }}",
+                wsPort: "{{ env('VITE_REVERB_PORT') }}",
+                wssPort: "{{ env('VITE_REVERB_PORT') }}",
+                forceTLS: "{{ env('VITE_REVERB_SCHEME') }}" === 'https',
+                enabledTransports: ['ws', 'wss'],
+            });
+
+            window.Echo.channel('order-status.{{ auth()->id() }}')
+                .listen('.order-status-updated', (e) => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: e.order.status === 'cancelled' ? 'error' : 'success',
+                        title: e.message || `Pesanan ${e.order.order_code} diperbarui.`,
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true
+                    });
+                    
+                    // Refresh if on status page
+                    if (window.location.pathname.includes('status')) {
+                         setTimeout(() => window.location.reload(), 1500);
+                    }
+                });
+        }
+
+        // --- REAL-TIME CLOCK SCRIPT ---
+        (function() {
+            // Init with server time (UTC+7)
+            let serverTime = new Date("{{ now()->toIso8601String() }}");
+            
+            function updateClock() {
+                serverTime.setSeconds(serverTime.getSeconds() + 1);
+                const clockEl = document.getElementById('realtime-clock');
+                if (clockEl) {
+                    const hours = String(serverTime.getHours()).padStart(2, '0');
+                    const minutes = String(serverTime.getMinutes()).padStart(2, '0');
+                    const seconds = String(serverTime.getSeconds()).padStart(2, '0');
+                    clockEl.innerText = `${hours}:${minutes}:${seconds}`;
+                }
+            }
+            
+            setInterval(updateClock, 1000);
+            updateClock(); // Initial run
+        })();
     });
 </script>
 

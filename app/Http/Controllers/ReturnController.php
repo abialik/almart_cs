@@ -11,12 +11,17 @@ use App\Events\NewReturnEvent;
 
 class ReturnController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $returns = ProductReturn::with('order')
+        $query = ProductReturn::with('order')
             ->where('customer_id', Auth::id())
-            ->latest()
-            ->get();
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $returns = $query->paginate(10)->withQueryString();
 
         return view('customer.returns.index', compact('returns'));
     }

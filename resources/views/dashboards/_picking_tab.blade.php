@@ -11,15 +11,19 @@
         <div class="space-y-4">
             @forelse($orders->where('status', 'processing') as $order)
                 <div onclick="openPickingDetail({{ $order->id }})" id="picking-card-{{ $order->id }}" class="picking-card cursor-pointer border-2 border-transparent border-gray-100 rounded-2xl p-5 hover:border-pink-300 transition-all duration-300 bg-white relative overflow-hidden group shadow-sm hover:shadow-md">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="font-bold text-gray-900 text-sm group-hover:text-pink-600 transition-colors">{{ $order->order_code }}</h3>
-                        @if($order->total > 500000)
-                            <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">Prioritas Tinggi</span>
-                        @else
-                            <span class="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">Normal</span>
-                        @endif
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
+                            @if($order->items->first() && $order->items->first()->product && $order->items->first()->product->image)
+                                <img src="{{ asset($order->items->first()->product->image) }}" class="max-w-full max-h-full object-contain">
+                            @else
+                                <i data-lucide="image" class="w-6 h-6 text-gray-200"></i>
+                            @endif
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-gray-900 text-sm group-hover:text-pink-600 transition-colors truncate">{{ $order->order_code }}</h3>
+                            <p class="text-[10px] font-semibold text-gray-400 truncate">{{ $order->customer->name ?? $order->full_name }}</p>
+                        </div>
                     </div>
-                    <p class="text-xs font-semibold text-gray-600 mb-4 truncate">{{ $order->customer->name ?? $order->full_name }}</p>
                     
                     {{-- Info Bawah --}}
                     <div class="flex justify-between items-center text-[10px] text-gray-400 font-bold mb-1.5">

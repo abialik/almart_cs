@@ -6,9 +6,19 @@
 
 {{-- ===== PAGE HEADER ===== --}}
 <div class="bg-gradient-to-r from-red-500 to-rose-600 py-10 mb-10 shadow-sm">
-    <div class="max-w-6xl mx-auto px-6 text-white text-center sm:text-left">
-        <h2 class="text-3xl font-extrabold mb-2">Riwayat Keluhan</h2>
-        <p class="text-red-100 opacity-90">Pantau status tanggapan keluhan Anda di sini.</p>
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-white text-center sm:text-left">
+        <div>
+            <h2 class="text-3xl font-extrabold mb-2 text-white">Riwayat Keluhan</h2>
+            <p class="text-red-100 opacity-90">Pantau status tanggapan keluhan Anda di sini.</p>
+        </div>
+        <form action="{{ url()->current() }}" method="GET" class="w-full md:w-auto">
+            <select name="status" onchange="this.form.submit()" class="w-full md:w-48 bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold rounded-2xl px-5 py-3 outline-none focus:bg-white focus:text-gray-900 transition-all cursor-pointer">
+                <option value="" class="text-gray-900">Semua Status</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }} class="text-gray-900">Menunggu</option>
+                <option value="responded" {{ request('status') == 'responded' ? 'selected' : '' }} class="text-gray-900">Ditanggapi</option>
+                <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }} class="text-gray-900">Selesai</option>
+            </select>
+        </form>
     </div>
 </div>
 
@@ -84,6 +94,13 @@
             </table>
         </div>
     </div>
+    
+    {{-- Pagination --}}
+    @if($complaints->hasPages())
+    <div class="mt-8 flex justify-center">
+        {{ $complaints->links() }}
+    </div>
+    @endif
 </div>
 
 @endsection

@@ -48,31 +48,33 @@
     <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-50 flex flex-col">
         
         <!-- Filters -->
-        <div class="p-6 border-b border-gray-50 flex flex-col md:flex-row gap-4 items-center">
-            <form action="{{ url()->current() }}" method="GET" class="relative flex-1 w-full">
-                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ID transaksi atau nama customer..." class="w-full pl-11 pr-24 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-shadow">
-                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 text-white hover:bg-blue-600 font-bold text-xs py-2 px-4 rounded-xl shadow-sm transition-colors">Cari</button>
+        <div class="p-6 border-b border-gray-50">
+            <form action="{{ url()->current() }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="relative flex-1 w-full">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ID transaksi atau nama customer..." class="w-full pl-11 pr-24 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-shadow">
+                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 text-white hover:bg-blue-600 font-bold text-xs py-2 px-4 rounded-xl shadow-sm transition-colors">Cari</button>
+                </div>
+                <div class="flex gap-4 w-full md:w-auto">
+                    <div class="relative w-full md:w-40">
+                        <select name="type" onchange="this.form.submit()" class="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-blue-500 transition-shadow appearance-none cursor-pointer">
+                            <option value="">Semua Tipe</option>
+                            <option value="online" {{ request('type') == 'online' ? 'selected' : '' }}>Online</option>
+                            <option value="offline" {{ request('type') == 'offline' ? 'selected' : '' }}>Offline</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    </div>
+                    <div class="relative w-full md:w-40">
+                        <select name="status" onchange="this.form.submit()" class="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-blue-500 transition-shadow appearance-none cursor-pointer">
+                            <option value="">Semua Status</option>
+                            <option value="berhasil" {{ request('status') == 'berhasil' ? 'selected' : '' }}>Berhasil</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="dibatalkan" {{ request('status') == 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    </div>
+                </div>
             </form>
-            <div class="flex gap-4 w-full md:w-auto">
-                <div class="relative w-full md:w-40">
-                    <select class="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-blue-500 transition-shadow appearance-none cursor-pointer">
-                        <option>Semua Tipe</option>
-                        <option>Online</option>
-                        <option>Offline</option>
-                    </select>
-                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                </div>
-                <div class="relative w-full md:w-40">
-                    <select class="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-700 outline-none focus:border-blue-500 transition-shadow appearance-none cursor-pointer">
-                        <option>Semua Status</option>
-                        <option>Berhasil</option>
-                        <option>Pending</option>
-                        <option>Dibatalkan</option>
-                    </select>
-                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                </div>
-            </div>
         </div>
 
         <!-- Table -->

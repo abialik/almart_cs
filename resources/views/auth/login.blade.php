@@ -135,16 +135,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-between px-1">
-                <label class="flex items-center gap-3 cursor-pointer group">
-                    <div class="relative flex items-center">
-                        <input type="checkbox" name="remember" class="peer h-5 w-5 opacity-0 absolute cursor-pointer">
-                        <div class="h-5 w-5 bg-gray-200 rounded-md peer-checked:bg-red-500 transition-all duration-300"></div>
-                        <svg class="absolute h-5 w-5 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-300 p-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path d="M5 13l4 4L19 7"/></svg>
-                    </div>
-                    <span class="text-xs font-bold text-gray-500 group-hover:text-gray-700 transition-colors uppercase tracking-tight">Ingat Saya</span>
-                </label>
-            </div>
+            {{-- Remember Me removed for security (logout on close policy) --}}
 
             <button type="submit" 
                     class="w-full py-4 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-2xl text-sm font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:-translate-y-1 active:scale-95 transition-all duration-300">

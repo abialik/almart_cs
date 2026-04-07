@@ -8,11 +8,15 @@ use Illuminate\Support\Facades\Auth;
 
 class CustomerComplaintController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $complaints = Complaint::where('user_id', Auth::id())
-            ->latest()
-            ->get();
+        $query = Complaint::where('user_id', Auth::id())->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $complaints = $query->paginate(10)->withQueryString();
 
         return view('customer.complaints.index', compact('complaints'));
     }

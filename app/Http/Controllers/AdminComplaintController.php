@@ -7,9 +7,24 @@ use Illuminate\Http\Request;
 
 class AdminComplaintController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $complaints = Complaint::latest()->paginate(10);
+        $query = Complaint::latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%")
+                  ->orWhere('order_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $complaints = $query->paginate(10)->withQueryString();
         return view('admin.complaints.index', compact('complaints'));
     }
 

@@ -14,14 +14,38 @@ class AdminOrderController extends Controller
     {
         $query = Order::with(['payment', 'customer', 'items'])->latest();
 
-        if ($request->has('search')) {
-            $query->where('order_code', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('customer', function($q) use ($request) {
-                      $q->where('name', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('order_code', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('customer', function($sub) use ($request) {
+                      $sub->where('name', 'like', '%' . $request->search . '%');
                   });
+            });
         }
 
-        $orders = $query->paginate(15);
+        if ($request->filled('type')) {
+            if ($request->type === 'offline') {
+                $query->whereHas('payment', function($q) {
+                    $q->whereIn('method', ['tunai', 'cod', 'cash']);
+                });
+            } elseif ($request->type === 'online') {
+                $query->whereHas('payment', function($q) {
+                    $q->whereNotIn('method', ['tunai', 'cod', 'cash']);
+                });
+            }
+        }
+
+        if ($request->filled('status')) {
+            if ($request->status === 'berhasil') {
+                $query->whereIn('status', ['paid', 'processing', 'delivering', 'ready_for_pickup', 'delivered']);
+            } elseif ($request->status === 'pending') {
+                $query->where('status', 'pending');
+            } elseif ($request->status === 'dibatalkan') {
+                $query->where('status', 'cancelled');
+            }
+        }
+
+        $orders = $query->paginate(15)->withQueryString();
 
         // Stats calculation
         $allOrders = Order::with('payment')->get();
@@ -56,6 +80,10 @@ class AdminOrderController extends Controller
         $previousStatus = $order->status;
         $order->update(['status' => $request->status]);
 
+        // --- DISPATCH REAL-TIME NOTIFICATION ---
+        $message = "Status pesanan {$order->order_code} telah diperbarui menjadi " . strtoupper($request->status) . ".";
+        event(new \App\Events\OrderStatusUpdatedEvent($order, $message));
+
         // If status changed to paid, ensure payment status is also paid
         if ($request->status === 'paid' && $order->payment) {
             $order->payment->update(['status' => 'paid']);
@@ -88,11 +116,34 @@ class AdminOrderController extends Controller
         $fileName = 'transaksi_' . date('Y_m_d_H_i_s') . '.csv';
         $orders = Order::with(['payment', 'customer', 'items'])->latest()
             ->when($request->search, function($query, $search) {
-                return $query->where('order_code', 'like', "%{$search}%")
-                             ->orWhereHas('customer', function($q) use ($search) {
-                                 $q->where('name', 'like', "%{$search}%");
-                             });
-            })->get();
+                return $query->where(function($q) use ($search) {
+                    $q->where('order_code', 'like', "%{$search}%")
+                      ->orWhereHas('customer', function($sub) use ($search) {
+                          $sub->where('name', 'like', "%{$search}%");
+                      });
+                });
+            })
+            ->when($request->type, function($query, $type) {
+                if ($type === 'offline') {
+                    return $query->whereHas('payment', function($q) {
+                        $q->whereIn('method', ['tunai', 'cod', 'cash']);
+                    });
+                } elseif ($type === 'online') {
+                    return $query->whereHas('payment', function($q) {
+                        $q->whereNotIn('method', ['tunai', 'cod', 'cash']);
+                    });
+                }
+            })
+            ->when($request->status, function($query, $status) {
+                if ($status === 'berhasil') {
+                    return $query->whereIn('status', ['paid', 'processing', 'delivering', 'ready_for_pickup', 'delivered']);
+                } elseif ($status === 'pending') {
+                    return $query->where('status', 'pending');
+                } elseif ($status === 'dibatalkan') {
+                    return $query->where('status', 'cancelled');
+                }
+            })
+            ->get();
 
         $headers = array(
             "Content-type"        => "text/csv",

@@ -24,7 +24,7 @@ class AdminReturnController extends Controller
             $query->where('status', $request->status);
         }
 
-        $returns = $query->paginate(10);
+        $returns = $query->paginate(10)->withQueryString();
         return view('admin.returns.index', compact('returns'));
     }
 

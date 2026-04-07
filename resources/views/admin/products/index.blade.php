@@ -137,9 +137,18 @@
             <!-- Top Section -->
             <div class="p-6 pb-0">
                 <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="text-lg font-black text-gray-900 leading-tight tracking-tight">{{ $product->name }}</h3>
-                        <p class="text-xs font-semibold text-gray-400 mt-1 uppercase tracking-wider">{{ $product->category->name ?? 'Uncategorized' }} • SKU{{ str_pad($product->id, 3, '0', STR_PAD_LEFT) }}</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-center p-2 shrink-0 overflow-hidden">
+                            @if($product->image)
+                                <img src="{{ asset($product->image) }}" class="max-w-full max-h-full object-contain" alt="{{ $product->name }}">
+                            @else
+                                <i data-lucide="image" class="w-6 h-6 text-gray-200"></i>
+                            @endif
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-gray-900 leading-tight tracking-tight hover:text-blue-600 transition-colors">{{ $product->name }}</h3>
+                            <p class="text-xs font-semibold text-gray-400 mt-1 uppercase tracking-wider">{{ $product->category->name ?? 'Uncategorized' }} • SKU{{ str_pad($product->id, 3, '0', STR_PAD_LEFT) }}</p>
+                        </div>
                     </div>
                     <div class="flex gap-1 shrink-0">
                         <a href="{{ route('admin.products.edit', $product->id) }}" class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-xl transition" title="Edit Produk">
