@@ -11,11 +11,11 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
-        // 1. Total Transaksi Hari Ini
-        $totalOrdersToday = Order::whereDate('created_at', Carbon::today())->count();
+        // 1. Total Transaksi (Keseluruhan)
+        $totalOrders = Order::count();
 
-        // 2. Total Pendapatan (Hanya pesanan yang sudah dibayar/dikirim)
-        $totalRevenue = Order::whereIn('status', ['paid', 'processing', 'delivered'])->sum('total');
+        // 2. Total Pendapatan (Hanya pesanan yang sudah dibayar/dikirim/siap ambil)
+        $totalRevenue = Order::whereIn('status', ['paid', 'processing', 'delivering', 'ready_for_pickup', 'delivered'])->sum('total');
 
         // 3. Produk Tersedia
         $totalProducts = Product::where('stock', '>', 0)->where('is_active', true)->count();
@@ -23,8 +23,7 @@ class AdminDashboardController extends Controller
         // 4. Total Member (Customers)
         $totalMembers = User::where('role', 'customer')->count();
 
-        // 5. Transaksi Mingguan (Online vs Offline - assuming all online for now unless is_cod is checked but we don't have offline POS)
-        // Let's just group orders by last 7 days
+        // 5. Transaksi Mingguan (Online vs Offline)
         $weeklyData = [];
         $weeklyLabels = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -33,7 +32,7 @@ class AdminDashboardController extends Controller
             $weeklyData[] = Order::whereDate('created_at', $date)->count();
         }
 
-        // 6. Transaksi Bulanan (Pesanan tahun ini per bulan)
+        // 6. Transaksi Bulanan
         $monthlyData = array_fill(0, 12, 0);
         $ordersThisYear = Order::selectRaw('MONTH(created_at) as month, count(*) as total')
             ->whereYear('created_at', Carbon::now()->year)
@@ -46,7 +45,7 @@ class AdminDashboardController extends Controller
         // 7. Status Pengiriman SAPA (Donut Chart)
         $statusCounts = [
             'Terkirim' => Order::where('status', 'delivered')->count(),
-            'Dalam Proses' => Order::whereIn('status', ['paid', 'processing'])->count(),
+            'Dalam Proses' => Order::whereIn('status', ['paid', 'processing', 'delivering', 'ready_for_pickup'])->count(),
             'Pending' => Order::where('status', 'pending')->count(),
             'Dibatalkan' => Order::where('status', 'cancelled')->count(),
         ];
@@ -55,7 +54,7 @@ class AdminDashboardController extends Controller
         $recentTransactions = Order::with('customer')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact(
-            'totalOrdersToday',
+            'totalOrders',
             'totalRevenue',
             'totalProducts',
             'totalMembers',

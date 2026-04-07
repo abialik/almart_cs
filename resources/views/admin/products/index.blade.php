@@ -87,21 +87,28 @@
     @endif
 
     <!-- FILTERS -->
-    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-50 flex flex-col md:flex-row gap-4 items-center p-3">
-        <form action="{{ url()->current() }}" method="GET" class="relative flex-1 w-full">
-            <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk, SKU, atau kategori..." class="w-full pl-11 pr-20 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-shadow">
-            <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-blue-500 text-white hover:bg-blue-600 font-bold text-[10px] py-1.5 px-3 rounded-lg shadow-sm transition-colors">Cari</button>
+    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-50 p-3">
+        <form action="{{ url()->current() }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center">
+            
+            <!-- SEACH -->
+            <div class="relative flex-1 w-full">
+                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk, SKU, atau kategori..." class="w-full pl-11 pr-20 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-shadow">
+                <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-blue-500 text-white hover:bg-blue-600 font-bold text-[10px] py-1.5 px-3 rounded-lg shadow-sm transition-colors">Cari</button>
+            </div>
+
+            <!-- STATUS SELECT -->
+            <div class="relative w-full md:w-48">
+                <select name="status" onchange="this.form.submit()" class="w-full px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-bold text-gray-700 outline-none focus:border-blue-500 transition-shadow appearance-none cursor-pointer">
+                    <option value="">Semua Status</option>
+                    <option value="tersedia" {{ request('status') === 'tersedia' ? 'selected' : '' }}>Tersedia</option>
+                    <option value="rendah" {{ request('status') === 'rendah' ? 'selected' : '' }}>Stok Rendah</option>
+                    <option value="habis" {{ request('status') === 'habis' ? 'selected' : '' }}>Habis</option>
+                </select>
+                <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+
         </form>
-        <div class="relative w-full md:w-48">
-            <select class="w-full px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-bold text-gray-700 outline-none focus:border-blue-500 transition-shadow appearance-none cursor-pointer">
-                <option>Semua Status</option>
-                <option>Tersedia</option>
-                <option>Stok Rendah</option>
-                <option>Habis</option>
-            </select>
-            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-        </div>
     </div>
 
     <!-- PRODUCT GRID -->

@@ -56,6 +56,12 @@ class Product extends Model
         return $this->hasMany(Cart::class);
     }
 
+    // Relasi ke detail pesanan (untuk hitung jumlah terjual)
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     // Relasi langsung ke user lewat carts
     public function usersInCart()
     {

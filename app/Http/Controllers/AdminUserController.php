@@ -27,10 +27,13 @@ class AdminUserController extends Controller
             });
         }
 
-        // Calculate orders count and total spent for customers
+        // Calculate orders count and total spent for customers (Only successful/paid orders)
         if ($role === 'customer') {
-            $query->withCount('orders')
-                  ->withSum('orders', 'total');
+            $query->withCount(['orders' => function($q) {
+                $q->whereIn('status', ['paid', 'processing', 'delivering', 'delivered']);
+            }])->withSum(['orders' => function($q) {
+                $q->whereIn('status', ['paid', 'processing', 'delivering', 'delivered']);
+            }], 'total');
         }
 
         $users = $query->paginate(12)->appends(request()->query());
@@ -90,12 +93,14 @@ class AdminUserController extends Controller
             ->with('success', 'User berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(User $user)
     {
-        $user->loadCount('orders')->loadSum('orders', 'total');
+        $user->loadCount(['orders' => function($q) {
+            $q->whereIn('status', ['paid', 'processing', 'delivering', 'delivered']);
+        }])->loadSum(['orders' => function($q) {
+            $q->whereIn('status', ['paid', 'processing', 'delivering', 'delivered']);
+        }], 'total');
+        
         return view('admin.users.show', compact('user'));
     }
 

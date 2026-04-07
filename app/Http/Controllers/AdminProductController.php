@@ -16,11 +16,24 @@ class AdminProductController extends Controller
     {
         $query = Product::with('category')->latest();
 
-        if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('category', function($q) use ($request) {
-                      $q->where('name', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('category', function($catQuery) use ($request) {
+                      $catQuery->where('name', 'like', '%' . $request->search . '%');
                   });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->status;
+            if ($status === 'tersedia') {
+                $query->where('stock', '>', 50);
+            } elseif ($status === 'rendah') {
+                $query->where('stock', '>', 0)->where('stock', '<=', 50);
+            } elseif ($status === 'habis') {
+                $query->where('stock', 0);
+            }
         }
 
         $products = $query->paginate(12);

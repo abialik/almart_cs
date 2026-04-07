@@ -44,7 +44,7 @@
             <a href="{{ route('admin.dashboard') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
                {{ request()->routeIs('admin.dashboard')
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
                     : 'hover:bg-gray-100 text-gray-500' }}">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                 Dashboard
@@ -53,7 +53,7 @@
             <a href="{{ route('admin.orders.index') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
                {{ request()->routeIs('admin.orders.*')
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
                     : 'hover:bg-gray-100 text-gray-800' }}">
                 <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                 Transaksi
@@ -62,7 +62,7 @@
             <a href="{{ route('admin.products.index') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
                {{ request()->routeIs('admin.products.*')
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
                     : 'hover:bg-gray-100 text-gray-800' }}">
                 <i data-lucide="boxes" class="w-5 h-5"></i>
                 Stok Barang
@@ -71,7 +71,7 @@
             <a href="{{ route('admin.users.index') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
                {{ request()->routeIs('admin.users.*')
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
                     : 'hover:bg-gray-100 text-gray-800' }}">
                 <i data-lucide="users" class="w-5 h-5"></i>
                 Member & Petugas
@@ -80,7 +80,7 @@
             <a href="{{ route('admin.complaints.index') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
                {{ request()->routeIs('admin.complaints.*')
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
                     : 'hover:bg-gray-100 text-gray-800' }}">
                 <i data-lucide="message-square-warning" class="w-5 h-5"></i>
                 Keluhan Pelanggan
@@ -89,14 +89,22 @@
             <a href="{{ route('admin.returns.index') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
                {{ request()->routeIs('admin.returns.*')
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
                     : 'hover:bg-gray-100 text-gray-800' }}">
                 <i data-lucide="refresh-ccw" class="w-5 h-5"></i>
                 Pengembalian Barang
             </a>
 
-        </nav>
+            <a href="{{ route('admin.newsletters.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
+               {{ request()->routeIs('admin.newsletters.*')
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
+                    : 'hover:bg-gray-100 text-gray-800' }}">
+                <i data-lucide="mail" class="w-5 h-5"></i>
+                Daftar Newsletter
+            </a>
 
+        </nav>
 
 
     </aside>
@@ -110,7 +118,7 @@
 
             <!-- Toggle Sidebar & Search -->
             <div class="flex items-center gap-4 w-full max-w-md">
-                <button id="toggleSidebarBtn" class="p-2 -ml-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-xl transition-colors focus:outline-none flex-shrink-0">
+                <button id="toggleSidebarBtn" class="p-2 -ml-2 text-gray-500 hover:text-rose-600 hover:bg-gray-100 rounded-xl transition-colors focus:outline-none flex-shrink-0">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -124,7 +132,7 @@
                 <div class="relative">
                     <div id="profileDropdownBtn" class="flex items-center gap-3 cursor-pointer group select-none">
                         <div class="text-right hidden sm:block">
-                            <p class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                            <p class="text-sm font-bold text-gray-900 group-hover:text-rose-600 transition-colors">
                                 {{ Auth::user()->name ?? 'Admin Store' }}
                             </p>
                             <p class="text-xs font-semibold text-gray-400 capitalize">
@@ -132,8 +140,8 @@
                             </p>
                         </div>
 
-                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl
-                                    flex items-center justify-center shadow-sm border border-blue-100 group-hover:bg-blue-100 transition-colors">
+                        <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl
+                                    flex items-center justify-center shadow-sm border border-rose-100 group-hover:bg-rose-100 transition-colors">
                             <i data-lucide="user" class="w-5 h-5"></i>
                         </div>
                     </div>
@@ -241,7 +249,7 @@
                 success: 'bg-emerald-500',
                 warning: 'bg-orange-500',
                 error: 'bg-rose-500',
-                info: 'bg-blue-500'
+                info: 'bg-rose-500'
             };
             
             toast.className = `fixed bottom-5 right-5 ${colors[type]} text-white px-6 py-4 rounded-2xl shadow-2xl z-[9999] transform transition-all duration-500 translate-y-20 flex items-center gap-3 font-bold`;

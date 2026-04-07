@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Almart')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
 
 <body class="bg-gray-50 text-gray-800 antialiased">
@@ -17,11 +26,12 @@
         <a href="/" class="flex items-center gap-3 group">
             <img src="{{ asset('images/logo.png') }}" class="h-10 w-auto">
             <div class="leading-tight">
-                <p class="font-bold text-lg text-gray-900 group-hover:text-green-600 transition">
+                <p class="font-bold text-lg text-gray-900 group-hover:text-rose-500 transition">
                     Almart
                 </p>
                 <p class="text-xs text-gray-500">
-                    Segar Setiap Hari
+                    {{-- Segar Setiap Hari untuk hidup anda --}}
+                    Segar Setiap Hari untuk hidup anda
                 </p>
             </div>
         </a>
@@ -32,26 +42,32 @@
                    name="search"
                    value="{{ request('search') }}"
                    placeholder="Cari buah, sayuran, minuman..."
-                   class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-100 focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm transition">
+                   class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-100 focus:bg-white focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm transition">
 
-            <svg class="w-5 h-5 absolute left-4 top-3.5 text-gray-400"
-                 fill="none" stroke="currentColor" stroke-width="2"
-                 viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-3.5 text-gray-400"></i>
         </form>
 
         <!-- RIGHT SIDE -->
         <div class="flex items-center gap-8 text-sm">
 
             <!-- Wishlist -->
-            <a href="{{ route('customer.wishlist.index') }}" class="relative text-gray-600 hover:text-red-500 transition duration-200">
-                <svg class="w-6 h-6"
-                     fill="none" stroke="currentColor" stroke-width="2"
-                     viewBox="0 0 24 24">
-                    <path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 10-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/>
-                </svg>
+            @auth
+            @php
+                $wishlistCount = \App\Models\Wishlist::where('user_id', auth()->id())->count();
+            @endphp
+            @endauth
+
+            <a href="{{ route('customer.wishlist.index') }}" class="relative text-gray-600 hover:text-rose-500 transition duration-200">
+                <i data-lucide="heart" class="w-6 h-6"></i>
+                @auth
+                    <span id="wishlist-counter" class="{{ $wishlistCount > 0 ? '' : 'hidden' }} absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                        {{ $wishlistCount }}
+                    </span>
+                @else
+                    <span id="wishlist-counter" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                        0
+                    </span>
+                @endauth
             </a>
 
            {{-- Cart --}}
@@ -64,28 +80,22 @@
 @endauth
 
 <a href="{{ route('customer.cart.index') }}" 
-   class="relative text-gray-600 hover:text-green-600 transition duration-200">
+   class="relative text-gray-600 hover:text-rose-600 transition duration-200">
 
-    <svg class="w-6 h-6"
-         fill="none" stroke="currentColor" stroke-width="2"
-         viewBox="0 0 24 24">
-        <circle cx="9" cy="21" r="1"/>
-        <circle cx="20" cy="21" r="1"/>
-        <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
-    </svg>
+    <i data-lucide="shopping-cart" class="w-6 h-6"></i>
 
     @auth
         @if($cartCount > 0)
-            <span id="cart-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+            <span id="cart-counter" class="absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
                 {{ $cartCount }}
             </span>
         @else
-            <span id="cart-counter" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+            <span id="cart-counter" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
                 0
             </span>
         @endif
     @else
-        <span id="cart-counter" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+        <span id="cart-counter" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             0
         </span>
     @endauth
@@ -95,36 +105,29 @@
             @auth
 
             <!-- PROFILE -->
-            <div class="relative group">
-
-                <button class="flex items-center gap-3 focus:outline-none">
-
+            <div class="relative">
+                <button id="userProfileBtn" class="flex items-center gap-3 focus:outline-none group">
                     <!-- Avatar -->
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 text-white flex items-center justify-center rounded-full font-semibold shadow-md">
+                    <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex items-center justify-center rounded-full font-semibold shadow-md group-hover:scale-105 transition">
                         {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                     </div>
-
-                    <svg class="w-4 h-4 text-gray-400 group-hover:rotate-180 transition duration-200"
-                         fill="none" stroke="currentColor" stroke-width="2"
-                         viewBox="0 0 24 24">
-                        <path d="M6 9l6 6 6-6"/>
-                    </svg>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 group-hover:text-rose-600 transition"></i>
                 </button>
 
                 <!-- DROPDOWN -->
-                <div class="absolute right-0 mt-4 w-72 bg-white rounded-2xl shadow-xl border border-gray-100
-                            opacity-0 invisible group-hover:opacity-100 group-hover:visible 
-                            transition duration-200 z-50">
+                <div id="userProfileMenu" 
+                     class="absolute right-0 mt-4 w-72 bg-white rounded-2xl shadow-xl border border-gray-100
+                            opacity-0 invisible pointer-events-none transition-all duration-200 z-50 transform scale-95 origin-top-right">
 
                     <!-- User Info -->
                     <div class="px-6 py-5 border-b border-gray-100">
-                        <p class="font-semibold text-gray-900">
+                        <p class="font-bold text-gray-900 leading-none">
                             {{ auth()->user()->name }}
                         </p>
-                        <p class="text-xs text-gray-500 mt-1">
+                        <p class="text-[11px] text-gray-400 mt-2 font-medium">
                             {{ auth()->user()->email }}
                         </p>
-                        <span class="inline-block mt-3 px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full">
+                        <span class="inline-block mt-3 px-3 py-1 text-[10px] bg-rose-50 text-rose-600 rounded-full font-black uppercase tracking-widest">
                             {{ ucfirst(auth()->user()->role) }}
                         </span>
                     </div>
@@ -133,38 +136,45 @@
                     <div class="py-2 text-sm text-gray-700">
 
                         <a href="{{ route('shop.home') }}"
-                           class="block px-6 py-3 hover:bg-gray-50 transition">
-                            Beranda
+                           class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition group">
+                            <i data-lucide="home" class="w-4 h-4 text-gray-400 group-hover:text-rose-500 transition"></i>
+                            <span class="font-bold">Beranda</span>
                         </a>
 
                         <a href="{{ route('profile.edit') }}"
-                           class="block px-6 py-3 hover:bg-gray-50 transition">
-                            Profile Saya
+                           class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition group">
+                            <i data-lucide="user" class="w-4 h-4 text-gray-400 group-hover:text-rose-500 transition"></i>
+                            <span class="font-bold">Profil Saya</span>
                         </a>
 
                         <a href="{{ route('customer.orders.index') }}"
-                           class="block px-6 py-3 hover:bg-gray-50 transition">
-                            Pesanan Saya
+                           class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition group">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-400 group-hover:text-rose-500 transition"></i>
+                            <span class="font-bold">Pesanan Saya</span>
                         </a>
 
                         <a href="{{ route('customer.orders.status') }}"
-                           class="block px-6 py-3 hover:bg-gray-50 transition">
-                            Status Pesanan
+                           class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition group">
+                            <i data-lucide="truck" class="w-4 h-4 text-gray-400 group-hover:text-rose-500 transition"></i>
+                            <span class="font-bold">Status Pesanan</span>
                         </a>
 
                         <a href="{{ route('customer.wishlist.index') }}"
-                           class="block px-6 py-3 hover:bg-gray-50 transition">
-                            Daftar Keinginan
+                           class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition group">
+                            <i data-lucide="heart" class="w-4 h-4 text-gray-400 group-hover:text-rose-500 transition"></i>
+                            <span class="font-bold">Daftar Keinginan</span>
                         </a>
 
                         <a href="{{ route('customer.returns.index') }}"
-                           class="block px-6 py-3 hover:bg-gray-50 transition">
-                            Riwayat Retur
+                           class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition group">
+                            <i data-lucide="refresh-ccw" class="w-4 h-4 text-gray-400 group-hover:text-rose-500 transition"></i>
+                            <span class="font-bold">Riwayat Retur</span>
                         </a>
 
                         <a href="{{ route('customer.complaints.index') }}"
-                           class="block px-6 py-3 hover:bg-gray-50 transition">
-                            Riwayat Keluhan
+                           class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition group">
+                            <i data-lucide="message-square" class="w-4 h-4 text-gray-400 group-hover:text-rose-500 transition"></i>
+                            <span class="font-bold">Riwayat Keluhan</span>
                         </a>
 
                     </div>
@@ -173,8 +183,8 @@
                     <div class="border-t border-gray-100">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button class="w-full text-left px-6 py-3 text-sm text-red-500 hover:bg-red-50 transition">
-                                Keluar
+                            <button class="w-full text-left px-6 py-4 text-sm text-rose-500 hover:bg-rose-50 transition font-bold flex items-center gap-3">
+                                <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
                             </button>
                         </form>
                     </div>
@@ -185,7 +195,7 @@
             @else
 
             <a href="/login"
-               class="bg-green-600 text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-green-700 transition shadow-sm">
+               class="bg-rose-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-rose-700 hover:shadow-lg hover:shadow-rose-100 transition shadow-sm">
                 Masuk
             </a>
 
@@ -204,6 +214,9 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Icons
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+
         const cartButtons = document.querySelectorAll('.btn-add-to-cart');
         
         cartButtons.forEach(button => {
@@ -212,6 +225,7 @@
                 
                 const productId = this.dataset.productId;
                 const form = this.closest('form');
+                if(!form) return;
                 const url = form.action;
                 const token = form.querySelector('input[name="_token"]').value;
 
@@ -231,14 +245,12 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update counter
                         const counter = document.getElementById('cart-counter');
                         if (counter) {
                             counter.innerText = data.cart_count;
                             counter.classList.remove('hidden');
                         }
 
-                        // Success Toast
                         Swal.fire({
                             toast: true,
                             position: 'top-end',
@@ -249,7 +261,7 @@
                             timerProgressBar: true,
                             background: '#fff',
                             color: '#1f2937',
-                            iconColor: '#ef4444'
+                            iconColor: '#f43f5e'
                         });
                     }
                 })
@@ -281,12 +293,24 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Update UI Toggle
                         if (data.status === 'added') {
                             this.classList.remove('text-gray-300', 'border-gray-200', 'bg-white');
-                            this.classList.add('text-red-500', 'border-red-500', 'bg-red-50');
+                            this.classList.add('text-rose-500', 'border-rose-500', 'bg-rose-50');
                         } else {
-                            this.classList.remove('text-red-500', 'border-red-500', 'bg-red-50');
+                            this.classList.remove('text-rose-500', 'border-rose-500', 'bg-rose-50');
                             this.classList.add('text-gray-300', 'border-gray-200', 'bg-white');
+                        }
+
+                        // Update Counter
+                        const counter = document.getElementById('wishlist-counter');
+                        if (counter) {
+                            counter.innerText = data.wishlist_count;
+                            if (data.wishlist_count > 0) {
+                                counter.classList.remove('hidden');
+                            } else {
+                                counter.classList.add('hidden');
+                            }
                         }
 
                         Swal.fire({
@@ -302,6 +326,85 @@
                 });
             });
         });
+
+        // PROFILE DROPDOWN TOGGLE (Click-based)
+        const userProfileBtn = document.getElementById('userProfileBtn');
+        const userProfileMenu = document.getElementById('userProfileMenu');
+
+        if (userProfileBtn && userProfileMenu) {
+            userProfileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                const isOpen = !userProfileMenu.classList.contains('invisible');
+                
+                if (isOpen) {
+                    userProfileMenu.classList.add('opacity-0', 'invisible', 'pointer-events-none', 'scale-95');
+                } else {
+                    userProfileMenu.classList.remove('opacity-0', 'invisible', 'pointer-events-none', 'scale-95');
+                }
+            });
+
+            userProfileMenu.addEventListener('click', (e) => e.stopPropagation());
+
+            document.addEventListener('click', () => {
+                userProfileMenu.classList.add('opacity-0', 'invisible', 'pointer-events-none', 'scale-95');
+            });
+        }
+
+        // --- GLOBAL NEWSLETTER HANDLER ---
+        const initNewsletter = (btnId, formId, inputId) => {
+            const btn = document.getElementById(btnId);
+            const form = document.getElementById(formId);
+            const input = document.getElementById(inputId);
+
+            if (btn && form && input) {
+                btn.addEventListener('click', function() {
+                    const email = input.value;
+                    const url = form.dataset.url;
+                    const token = form.dataset.token;
+
+                    if (!email || !email.includes('@')) {
+                        Swal.fire({ icon: 'error', title: 'Email Tidak Valid', text: 'Silakan masukkan alamat email yang benar!' });
+                        return;
+                    }
+
+                    const originalContent = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="animate-spin text-[10px]">⌛</span>';
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Terima Kasih!',
+                                text: data.message,
+                                confirmButtonColor: '#f43f5e'
+                            });
+                            input.value = '';
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan. Coba lagi nanti.' });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghubungi server.' });
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    });
+                });
+            }
+        };
+
+        // Initialize banner form only (Footer footer-subscribe-btn removed in footer.blade.php)
+        initNewsletter('subscribe-btn', 'newsletter-form', 'newsletter-email');
     });
 </script>
 

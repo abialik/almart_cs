@@ -44,7 +44,8 @@ class WishlistController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => $status,
-                'message' => $message
+                'message' => $message,
+                'wishlist_count' => Wishlist::where('user_id', Auth::id())->count()
             ]);
         }
 

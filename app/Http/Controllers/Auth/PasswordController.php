@@ -24,6 +24,13 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        $user = $request->user();
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard')->with('success', 'Sandi admin berhasil diperbarui.');
+        } elseif ($user->role === 'petugas') {
+            return redirect()->route('petugas.dashboard')->with('success', 'Sandi petugas berhasil diperbarui.');
+        }
+
         return back()->with('status', 'password-updated');
     }
 }

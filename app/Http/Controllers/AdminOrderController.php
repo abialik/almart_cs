@@ -26,7 +26,7 @@ class AdminOrderController extends Controller
         // Stats calculation
         $allOrders = Order::with('payment')->get();
         $totalOrders = $allOrders->count();
-        $totalRevenue = $allOrders->whereIn('status', ['paid', 'processing', 'delivered'])->sum('total');
+        $totalRevenue = $allOrders->whereIn('status', ['paid', 'processing', 'delivering', 'ready_for_pickup', 'delivered'])->sum('total');
         $offlineOrders = $allOrders->filter(function($order) {
             return strtolower(optional($order->payment)->method) === 'tunai' || strtolower(optional($order->payment)->method) === 'cod';
         })->count();

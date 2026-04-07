@@ -25,6 +25,12 @@ Route::controller(ShopController::class)->group(function () {
     ->name('product.detail');
 });
 
+// NEWSLETTER
+Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
+// FULL PROFILE UPDATE (Admin/Petugas)
+Route::patch('/profile/full-update', [\App\Http\Controllers\ProfileController::class, 'fullUpdate'])->name('profile.full-update');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -160,6 +166,10 @@ Route::middleware(['auth', 'active', 'role:admin'])
         Route::get('/returns', [\App\Http\Controllers\AdminReturnController::class, 'index'])->name('returns.index');
         Route::get('/returns/{return}', [\App\Http\Controllers\AdminReturnController::class, 'show'])->name('returns.show');
         Route::patch('/returns/{return}/update', [\App\Http\Controllers\AdminReturnController::class, 'update'])->name('returns.update');
+
+        // NEWSLETTER LIST
+        Route::get('/newsletters', [\App\Http\Controllers\NewsletterController::class, 'index'])->name('newsletters.index');
+        Route::delete('/newsletters/{subscription}', [\App\Http\Controllers\NewsletterController::class, 'destroy'])->name('newsletters.destroy');
 
     });
 
