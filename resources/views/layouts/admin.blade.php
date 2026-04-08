@@ -68,6 +68,15 @@
                 Stok Barang
             </a>
 
+            <a href="{{ route('admin.categories.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
+               {{ request()->routeIs('admin.categories.*')
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
+                    : 'hover:bg-gray-100 text-gray-800' }}">
+                <i data-lucide="layers" class="w-5 h-5"></i>
+                Kategori
+            </a>
+
             <a href="{{ route('admin.users.index') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
                {{ request()->routeIs('admin.users.*')
@@ -93,6 +102,15 @@
                     : 'hover:bg-gray-100 text-gray-800' }}">
                 <i data-lucide="refresh-ccw" class="w-5 h-5"></i>
                 Pengembalian Barang
+            </a>
+
+            <a href="{{ route('admin.reviews.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition
+               {{ request()->routeIs('admin.reviews.*')
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
+                    : 'hover:bg-gray-100 text-gray-800' }}">
+                <i data-lucide="star" class="w-5 h-5"></i>
+                Ulasan Pelanggan
             </a>
 
             <a href="{{ route('admin.newsletters.index') }}"
@@ -271,5 +289,6 @@
             }, 5000);
         }
     </script>
+    @stack('scripts')
 </body>
 </html>

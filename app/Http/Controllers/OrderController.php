@@ -91,4 +91,19 @@ class OrderController extends Controller
         return redirect()->route('customer.orders.status', ['s' => 'cancelled'])
             ->with('success', 'Pesanan ' . $order->order_code . ' berhasil dibatalkan.');
     }
+
+    /**
+     * Display digital receipt for the customer.
+     */
+    public function receipt(Order $order)
+    {
+        // Ensure the order belongs to the authenticated customer
+        if ($order->customer_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $order->load(['items.product', 'payment']);
+
+        return view('dashboards.receipt', compact('order'));
+    }
 }

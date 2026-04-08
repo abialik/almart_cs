@@ -107,13 +107,13 @@
 
             <div class="flex items-center gap-1 text-yellow-400 text-xs mt-2">
                 @for($i = 1; $i <= 5; $i++)
-                    @if($product->rating >= $i)
+                    @if($product->averageRating >= $i)
                         ★
                     @else
                         ☆
                     @endif
                 @endfor
-                <span class="text-gray-500 ml-1">{{ $product->rating }}</span>
+                <span class="text-gray-400 ml-1 font-bold">({{ count($product->reviews) }})</span>
             </div>
 
             <div class="mt-3">

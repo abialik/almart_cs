@@ -317,8 +317,26 @@
             @else
 
             {{-- ===== BANK / QRIS / EWALLET INFO ===== --}}
-            <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden p-8 sm:p-12 mb-6">
+            @php
+                $isExpired = $order->payment_deadline && now()->gt($order->payment_deadline);
+            @endphp
+
+            <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden p-8 sm:p-12 mb-6 relative">
                 
+                @if($isExpired)
+                    {{-- ===== EXPIRED OVERLAY ===== --}}
+                    <div class="absolute inset-0 bg-white/90 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-8 text-center animate-pulse-slow">
+                        <div class="w-20 h-20 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="clock-alert" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-2xl font-black text-gray-900 mb-2">Waktu Pembayaran Habis</h3>
+                        <p class="text-gray-500 text-sm max-w-xs mb-8">Maaf, pesanan ini telah kedaluwarsa karena melewati batas waktu pembayaran 24 jam.</p>
+                        <a href="{{ route('shop.home') }}" class="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-black transition shadow-lg shadow-gray-200">
+                            Kembali ke Toko
+                        </a>
+                    </div>
+                @endif
+
                 @if($order->payment && in_array($order->payment->method, ['qris', 'ewallet']))
                     {{-- ===== QRIS / E-WALLET DESIGN ===== --}}
                     <div class="max-w-md mx-auto space-y-8">
@@ -338,8 +356,11 @@
                                 </svg>
                                 <span class="text-sm font-bold">Selesaikan pembayaran dalam:</span>
                             </div>
-                            <span id="payment-timer" class="text-lg font-black text-gray-900 tracking-wider">05:45</span>
+                            <span id="payment-timer" 
+                                  data-deadline="{{ $order->payment_deadline ? $order->payment_deadline->isoFormat('Y-MM-DD HH:mm:ss') : '' }}"
+                                  class="text-lg font-black text-gray-900 tracking-wider">--:--</span>
                         </div>
+
 
                         {{-- Total Amount Box --}}
                         <div class="bg-[#FFE5E1] border border-[#FFD0C8] rounded-3xl p-8 shadow-sm">
@@ -515,6 +536,11 @@
                         Konfirmasi Pembayaran
                     </button>
 
+                    <a href="{{ route('shop.home') }}" 
+                       class="w-full mt-3 py-3.5 bg-white border border-gray-200 text-gray-500 font-bold text-xs rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2">
+                        Bayar Nanti
+                    </a>
+
                 </form>
             </div>
 
@@ -592,33 +618,53 @@ function copyText(text, btn) {
 }
 
 // Payment Timer Functionality
-function startPaymentTimer(durationMinutes) {
-    let timer = durationMinutes * 60;
+function startPaymentTimer() {
     const timerDisplay = document.getElementById('payment-timer');
     if (!timerDisplay) return;
 
+    const deadlineStr = timerDisplay.getAttribute('data-deadline');
+    if (!deadlineStr) return;
+
+    const deadline = new Date(deadlineStr).getTime();
+
     const interval = setInterval(function () {
-        let minutes = parseInt(timer / 60, 10);
-        let seconds = parseInt(timer % 60, 10);
+        const now = new Date().getTime();
+        const distance = deadline - now;
 
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-
-        timerDisplay.textContent = minutes + ":" + seconds;
-
-        if (--timer < 0) {
+        if (distance < 0) {
             timerDisplay.textContent = "EXPIRED";
             clearInterval(interval);
+            // Optionally reload to show the expired overlay
+            setTimeout(() => window.location.reload(), 1000);
+            return;
         }
+
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        let display = "";
+        if (hours > 0) display += (hours < 10 ? "0" + hours : hours) + ":";
+        display += (minutes < 10 ? "0" + minutes : minutes) + ":";
+        display += (seconds < 10 ? "0" + seconds : seconds);
+
+        timerDisplay.textContent = display;
     }, 1000);
 }
 
 // Initializing Timer if elements exist
 document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('payment-timer')) {
-        startPaymentTimer(5.75); // 5:45 as in screenshot
-    }
+    startPaymentTimer();
 });
 </script>
+<style>
+    @keyframes pulse-slow {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+    .animate-pulse-slow {
+        animation: pulse-slow 3s ease-in-out infinite;
+    }
+</style>
 
 @endsection

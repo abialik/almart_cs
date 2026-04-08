@@ -24,20 +24,33 @@
 <header class="bg-white/95 backdrop-blur sticky top-0 z-50 border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-10">
 
-        <!-- LOGO -->
+        <!<!-- LOGO -->
         <div class="flex items-center gap-6">
-            <a href="/" class="flex items-center gap-3 group">
-                <img src="{{ asset('images/logo.png') }}" class="h-10 w-auto">
-                <div class="leading-tight">
-                    <p class="font-bold text-lg text-gray-900 group-hover:text-rose-500 transition">
-                        Almart
-                    </p>
-                    <p class="text-xs text-gray-500 font-medium">
-                        {{-- Segar Setiap Hari untuk hidup anda --}}
-                        Segar Setiap Hari
-                    </p>
+            @if(!($hideNav ?? false))
+                <a href="/" class="flex items-center gap-3 group">
+                    <img src="{{ asset('images/logo.png') }}" class="h-10 w-auto">
+                    <div class="leading-tight">
+                        <p class="font-bold text-lg text-gray-900 group-hover:text-rose-500 transition">
+                            Almart
+                        </p>
+                        <p class="text-xs text-gray-500 font-medium">
+                            Segar Setiap Hari
+                        </p>
+                    </div>
+                </a>
+            @else
+                <div class="flex items-center gap-3">
+                    <img src="{{ asset('images/logo.png') }}" class="h-10 w-auto grayscale">
+                    <div class="leading-tight">
+                        <p class="font-bold text-lg text-gray-400">
+                            Almart
+                        </p>
+                        <p class="text-xs text-gray-300 font-medium italic">
+                            Secure Checkout
+                        </p>
+                    </div>
                 </div>
-            </a>
+            @endif
             
             {{-- Real-time Clock --}}
             <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-100 text-gray-400">
@@ -46,6 +59,7 @@
             </div>
         </div>
 
+        @if(!($hideNav ?? false))
         <!-- SEARCH -->
         <form action="/" method="GET" class="flex flex-1 max-w-2xl relative">
             <input type="text"
@@ -80,37 +94,52 @@
                 @endauth
             </a>
 
-           {{-- Cart --}}
-@auth
-@php
-    $cartCount = \App\Models\CartItem::whereHas('cart', function ($q) {
-        $q->where('user_id', auth()->id());
-    })->sum('qty');
-@endphp
-@endauth
+            {{-- Cart --}}
+            @auth
+            @php
+                $cartCount = \App\Models\CartItem::whereHas('cart', function ($q) {
+                    $q->where('user_id', auth()->id());
+                })->sum('qty');
+            @endphp
+            @endauth
 
-<a href="{{ route('customer.cart.index') }}" 
-   class="relative text-gray-600 hover:text-rose-600 transition duration-200">
+            <a href="{{ route('customer.inbox.index') }}" 
+               class="relative text-gray-600 hover:text-rose-600 transition duration-200">
+                <i data-lucide="bell" class="w-6 h-6"></i>
+                @auth
+                    @php
+                        $unreadCount = auth()->user()->unreadNotifications->count();
+                    @endphp
+                    @if($unreadCount > 0)
+                        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-black animate-bounce">
+                            {{ $unreadCount }}
+                        </span>
+                    @endif
+                @endauth
+            </a>
 
-    <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+            <a href="{{ route('customer.cart.index') }}" 
+               class="relative text-gray-600 hover:text-rose-600 transition duration-200">
 
-    @auth
-        @if($cartCount > 0)
-            <span id="cart-counter" class="absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
-                {{ $cartCount }}
-            </span>
-        @else
-            <span id="cart-counter" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
-                0
-            </span>
-        @endif
-    @else
-        <span id="cart-counter" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
-            0
-        </span>
-    @endauth
+                <i data-lucide="shopping-cart" class="w-6 h-6"></i>
 
-</a>
+                @auth
+                    @if($cartCount > 0)
+                        <span id="cart-counter" class="absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                            {{ $cartCount }}
+                        </span>
+                    @else
+                        <span id="cart-counter" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                            0
+                        </span>
+                    @endif
+                @else
+                    <span id="cart-counter" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                        0
+                    </span>
+                @endauth
+
+            </a>
 
             @auth
 
@@ -212,6 +241,13 @@
             @endauth
 
         </div>
+        @else
+            <div class="flex items-center gap-3 text-gray-400">
+                <i data-lucide="shield-check" class="w-5 h-5 text-rose-400"></i>
+                <span class="text-xs font-bold uppercase tracking-wider">Halaman Pembayaran Aman</span>
+            </div>
+        @endif
+
     </div>
 </header>
 
@@ -469,7 +505,9 @@
     });
 </script>
 
+@if(!($hideNav ?? false))
 @include('layouts.footer')
+@endif
 
     @stack('scripts')
 </body>

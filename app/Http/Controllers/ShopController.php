@@ -69,7 +69,7 @@ class ShopController extends Controller
     */
     public function show($slug)
     {
-        $product = Product::with('category')
+        $product = Product::with(['category', 'reviews.user'])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();

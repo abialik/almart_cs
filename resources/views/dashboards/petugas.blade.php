@@ -104,6 +104,48 @@
             </a>
         </div>
 
+        {{-- PRESTASI ANDA (PERSONAL STATS) --}}
+        <div class="mb-10 animate-fade-in-up" style="animation-delay: 150ms;">
+            <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden border border-gray-700">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-10"></div>
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-pink-500/10 rounded-full blur-[80px]"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                    <div class="flex-1 text-center md:text-left border-b md:border-b-0 md:border-r border-white/10 pb-6 md:pb-0 md:pr-8">
+                        <div class="flex items-center justify-center md:justify-start gap-4 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center border border-pink-500/30">
+                                <i data-lucide="trophy" class="w-5 h-5 text-pink-400"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-white tracking-tight">Prestasi Anda</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm font-medium">Performa layanan Anda hari ini</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-8 flex-[2] w-full">
+                        <div class="text-center group">
+                            <p class="text-[10px] font-black text-pink-500 uppercase tracking-[0.2em] mb-1 group-hover:scale-110 transition-transform">Selesai Hari Ini</p>
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-4xl font-black text-white tabular-nums tracking-tighter">{{ $pribadiSelesai }}</span>
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">+{{ $pribadiSelesai > 0 ? '100' : '0' }}%</span>
+                            </div>
+                        </div>
+                        <div class="text-center group border-l border-white/5">
+                            <p class="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-1 group-hover:scale-110 transition-transform">Sedang Ditangani</p>
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-4xl font-black text-white tabular-nums tracking-tighter">{{ $pribadiAktif }}</span>
+                                <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold border border-amber-500/30">Aktif</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 bg-white/5 px-6 py-4 rounded-2xl border border-white/10 backdrop-blur-md">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                        <p class="text-[11px] font-bold text-gray-300 uppercase tracking-widest">Sistem Online</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- MAIN CONTAINER --}}
         @if($tab === 'pesanan')
             @include('dashboards._pesanan_tab')
@@ -131,19 +173,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function confirmTerima(id) {
+    function confirmTerima(id, status = 'paid') {
+        const isPending = status === 'pending';
+        const title = isPending ? 'Verifikasi & Terima?' : 'Terima Pesanan?';
+        const msg = isPending 
+            ? 'Pastikan <span class="font-bold text-rose-500">Bukti Transfer</span> sudah sesuai sebelum memproses pesanan ini.' 
+            : 'Pesanan akan dipindahkan ke status <span class="font-bold text-amber-500">"Sedang Diproses"</span> dan siap untuk dipicking.';
+
         Swal.fire({
             html: `
                 <div class="text-left font-plus-jakarta pb-2">
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Terima Pesanan?</h3>
-                    <p class="text-sm text-gray-500">Pesanan akan dipindahkan ke status <span class="font-bold text-amber-500">"Sedang Diproses"</span> dan siap untuk dipicking.</p>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">${title}</h3>
+                    <p class="text-sm text-gray-500">${msg}</p>
                 </div>
             `,
             showCancelButton: true,
             confirmButtonColor: '#ec4899', // pink-500
             cancelButtonColor: '#f3f4f6', // gray-100
             cancelButtonText: '<span class="text-gray-600 font-bold">Batal</span>',
-            confirmButtonText: '<span class="font-bold text-white flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Ya, Terima</span>',
+            confirmButtonText: `<span class="font-bold text-white flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Ya, ${isPending ? 'Verifikasi' : 'Terima'}</span>`,
             customClass: {
                 popup: 'rounded-[2rem] p-4 shadow-2xl border border-gray-100',
                 confirmButton: 'rounded-xl px-6 py-3',
@@ -361,8 +409,6 @@
                     timer: 5000,
                     timerProgressBar: true
                 });
-                
-                // Optional: Play a sound or refresh partially
             });
     }
 
@@ -388,6 +434,40 @@
             }
         });
     }
+
+    // Timer untuk SLA (Service Level Agreement)
+    function updateSLATickers() {
+        const badges = document.querySelectorAll('.sla-badge');
+        const now = new Date();
+
+        badges.forEach(badge => {
+            const createdAt = new Date(badge.getAttribute('data-created-at'));
+            const diffMs = now - createdAt;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            const dot = badge.querySelector('span:first-child');
+            const text = badge.querySelector('.sla-text');
+
+            if (diffMins < 15) {
+                badge.className = "sla-badge flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-tighter bg-blue-50 text-blue-500 border-blue-100";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse";
+                text.innerText = "NORMAL SLA (" + diffMins + "m)";
+            } else if (diffMins < 30) {
+                badge.className = "sla-badge flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-tighter bg-amber-50 text-amber-500 border-amber-100 animate-pulse";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce";
+                text.innerText = "HIGH URGENCY (" + diffMins + "m)";
+            } else {
+                badge.className = "sla-badge flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-tighter bg-rose-500 text-white border-rose-600 animate-bounce";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_white]";
+                text.innerText = "CRITICAL SLA (" + diffMins + "m)";
+            }
+        });
+    }
+
+    // Jalankan setiap menit
+    setInterval(updateSLATickers, 60000);
+    // Jalankan pertama kali saat load
+    document.addEventListener('DOMContentLoaded', updateSLATickers);
 </script>
 @endauth
 @endsection

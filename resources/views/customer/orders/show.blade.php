@@ -33,6 +33,13 @@
             <span class="px-5 py-2 bg-white/20 backdrop-blur-md rounded-full text-xs font-black uppercase tracking-widest">
                 {{ $order->status }}
             </span>
+            @if(in_array($order->status, ['paid', 'processing', 'delivering', 'ready_for_pickup', 'delivered']))
+                <a href="{{ route('customer.orders.receipt', $order->id) }}" target="_blank" 
+                    class="px-5 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-black rounded-full border border-white/20 transition tracking-widest uppercase flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    STRUK DIGITAL
+                </a>
+            @endif
             @if($order->status === 'pending')
                 <div class="flex items-center gap-3">
                     <form id="cancel-order-form" action="{{ route('customer.orders.cancel', $order->id) }}" method="POST" class="hidden">
@@ -53,6 +60,21 @@
         </div>
     </div>
 </div>
+
+{{-- ===== PAYMENT DEADLINE WARNING ===== --}}
+@if($order->status === 'pending' && $order->payment_deadline)
+<div class="bg-amber-50 border-y border-amber-100 py-3">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
+        <div class="flex items-center gap-3 text-amber-800">
+            <svg class="w-5 h-5 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <p class="text-sm font-bold">Segera lunasi pembayaran sebelum: <span class="text-amber-600 tracking-tight">{{ $order->payment_deadline->format('d M Y, H:i') }}</span></p>
+        </div>
+        <div id="countdown" class="text-sm font-black text-amber-600 tabular-nums"></div>
+    </div>
+</div>
+@endif
 
 <div class="bg-gray-50 min-h-screen py-10">
     <div class="max-w-6xl mx-auto px-6">
@@ -86,6 +108,29 @@
                                     <div>
                                         <p class="font-bold text-gray-900">{{ $item->product->name }}</p>
                                         <p class="text-sm text-gray-400 mt-0.5">{{ $item->qty }} × Rp {{ number_format($item->price) }}</p>
+                                        
+                                        {{-- REVIEW FORM TRIGGER --}}
+                                        @if($order->status === 'delivered')
+                                            @php
+                                                $hasReviewed = \App\Models\Review::where('user_id', auth()->id())
+                                                    ->where('product_id', $item->product_id)
+                                                    ->where('order_id', $order->id)
+                                                    ->exists();
+                                            @endphp
+                                            
+                                            <div class="mt-4">
+                                                @if(!$hasReviewed)
+                                                    <button onclick="openReviewModal('{{ $item->product_id }}', '{{ $item->product->name }}')" 
+                                                            class="text-[10px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-4 py-2 rounded-xl hover:bg-rose-100 transition">
+                                                        Beri Ulasan
+                                                    </button>
+                                                @else
+                                                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-50 px-4 py-2 rounded-xl flex items-center gap-1.5 w-fit">
+                                                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Sudah Diulas
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                                 <p class="font-black text-gray-900">Rp {{ number_format($item->subtotal) }}</p>
@@ -119,6 +164,29 @@
                         </svg>
                         Status Pesanan
                     </h3>
+
+                    {{-- SAPA / PETUGAS INFO --}}
+                    @if(in_array($order->status, ['processing', 'delivering', 'ready_for_pickup', 'delivered']))
+                    <div class="mb-10 p-5 rounded-3xl bg-gray-900 shadow-xl relative overflow-hidden group">
+                        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-pink-500/10 rounded-full blur-2xl group-hover:bg-pink-500/20 transition-all duration-700"></div>
+                        <div class="relative z-10 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
+                                    <i data-lucide="user-check" class="w-6 h-6 text-pink-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Petugas SAPA</p>
+                                    <h4 class="text-sm font-black text-white tracking-tight uppercase">{{ $order->petugas->name ?? 'Tim Almart' }}</h4>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="px-3 py-1 rounded-full bg-pink-500/20 text-pink-400 text-[9px] font-black uppercase tracking-widest border border-pink-500/30">
+                                    Siap Melayani
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                     
                     <div class="relative pl-8 space-y-10 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-100">
                         
@@ -150,7 +218,7 @@
 
                         {{-- Step: Processing --}}
                         <div class="relative">
-                            @if(in_array($order->status, ['processing', 'delivered']))
+                            @if(in_array($order->status, ['processing', 'delivering', 'ready_for_pickup', 'delivered']))
                                 <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-green-500 border-4 border-green-50 shadow-sm z-10"></div>
                                 <div>
                                     <p class="text-sm font-bold text-gray-900">Sedang Diproses</p>
@@ -164,13 +232,45 @@
                             @endif
                         </div>
 
+                        {{-- Step: Delivering / Ready for Pickup --}}
+                        <div class="relative">
+                            @if(in_array($order->status, ['delivering', 'ready_for_pickup', 'delivered']))
+                                <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-green-500 border-4 border-green-50 shadow-sm z-10"></div>
+                                <div>
+                                    @if($order->shipping_type === 'pickup')
+                                        <p class="text-sm font-bold text-gray-900">Siap Diambil</p>
+                                        <p class="text-xs text-gray-400 mt-0.5">Barang sudah ready di toko Almart</p>
+                                    @else
+                                        <p class="text-sm font-bold text-gray-900">Sedang Dikirim</p>
+                                        <p class="text-xs text-gray-400 mt-0.5">Pesanan dalam perjalanan ke lokasi Anda</p>
+                                        @if($order->shipped_at)
+                                            <p class="text-[10px] text-green-600 font-bold mt-1 uppercase tracking-wider">Mulai dikirim: {{ $order->shipped_at->format('H:i') }} WIB</p>
+                                            @if($order->status === 'delivering')
+                                                <p class="text-[10px] text-blue-600 font-bold mt-0.5 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                                                    Durasi: <span id="delivery-timer" data-start="{{ $order->shipped_at->toIso8601String() }}">...</span>
+                                                </p>
+                                            @endif
+                                        @endif
+                                    @endif
+                                </div>
+                            @else
+                                <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-gray-100 border-4 border-white z-10"></div>
+                                <div class="opacity-50">
+                                    <p class="text-sm font-bold text-gray-400">{{ $order->shipping_type === 'pickup' ? 'Siap Diambil' : 'Dikirim' }}</p>
+                                </div>
+                            @endif
+                        </div>
+
                         {{-- Step: Delivered --}}
                         <div class="relative">
                             @if($order->status === 'delivered')
                                 <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-green-500 border-4 border-green-50 shadow-sm z-10"></div>
                                 <div>
                                     <p class="text-sm font-bold text-gray-900">Selesai / Terkirim</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">Pesanan sudah sampai di tujuan</p>
+                                    <p class="text-xs {{ $order->completed_at ? 'text-green-600 font-medium' : 'text-gray-400' }} mt-0.5">
+                                        {{ $order->completed_at ? 'Berhasil diterima pada ' . $order->completed_at->format('d M Y, H:i') . ' WIB' : 'Pesanan sudah sampai di tujuan' }}
+                                    </p>
                                 </div>
                             @elseif($order->status === 'cancelled')
                                 <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-gray-100 border-4 border-white z-10"></div>
@@ -315,11 +415,14 @@
                         <p class="font-black text-lg mb-2">Butuh Bantuan?</p>
                         <p class="text-blue-100 text-sm leading-relaxed mb-6">Hubungi Customer Service atau ajukan pengembalian jika barang bermasalah.</p>
                         <div class="flex flex-col gap-3">
-                            <a href="#" class="inline-flex items-center justify-center gap-2 text-xs font-black bg-white text-blue-600 px-6 py-3 rounded-xl hover:bg-blue-50 transition uppercase tracking-widest">
-                                Chat Admin
+                            <a href="https://wa.me/62895347920306?text={{ urlencode('Halo Admin Almart, saya butuh bantuan untuk pesanan dengan kode: ' . $order->order_code) }}" 
+                               target="_blank"
+                               class="inline-flex items-center justify-center gap-2 text-xs font-black bg-white text-blue-600 px-6 py-3 rounded-xl hover:bg-blue-50 transition uppercase tracking-widest shadow-sm">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.7 17.9 69.4 27.3 107.1 27.3 122.3 0 222-99.6 222-222 0-59.3-23.1-115.1-65.1-157.1zM223.9 445.5c-33.1 0-65.7-8.9-94.1-25.7l-6.7-4-69.8 18.3 18.7-68.1-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.5-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.6-2.8-23.5-8.7-44.8-27.7-16.6-14.8-27.8-33-31.1-38.6-3.3-5.6-.4-8.6 2.5-11.4 2.5-2.5 5.6-6.5 8.3-9.8 2.8-3.3 3.7-5.6 5.6-9.3 1.8-3.7.9-7-.5-9.8-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+                                Chat Admin via WA
                             </a>
                             @if(in_array($order->status, ['paid', 'processing', 'delivered']) && $order->returns->isEmpty())
-                                <a href="{{ route('customer.returns.create', $order->id) }}" class="inline-flex items-center justify-center gap-2 text-xs font-black bg-blue-500 text-white border border-blue-400 px-6 py-3 rounded-xl hover:bg-blue-400 transition uppercase tracking-widest">
+                                <a href="{{ route('customer.returns.create', $order->id) }}" class="inline-flex items-center justify-center gap-2 text-xs font-black bg-rose-500 text-white border border-rose-400 px-6 py-3 rounded-xl hover:bg-rose-600 transition uppercase tracking-widest shadow-lg shadow-rose-100">
                                     Ajukan Pengembalian
                                 </a>
                             @endif
@@ -337,7 +440,131 @@
 @endsection
 
 @push('scripts')
+{{-- REVIEW MODAL --}}
+<div id="reviewModal" class="fixed inset-0 z-[100] hidden overflow-y-auto">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+    <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden transform transition-all">
+            
+            <form action="{{ route('customer.reviews.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                <input type="hidden" name="product_id" id="review_product_id">
+
+                <div class="px-8 py-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-900 tracking-tighter">Beri Ulasan Produk</h3>
+                            <p class="text-sm text-gray-500 font-medium" id="review_product_name">Nama Produk</p>
+                        </div>
+                        <button type="button" onclick="closeReviewModal()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-900 transition">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    {{-- Rating --}}
+                    <div class="mb-10 text-center">
+                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Bagaimana kualitas produk ini?</p>
+                        <div class="flex items-center justify-center gap-3">
+                            @for($i = 1; $i <= 5; $i++)
+                                <input type="radio" name="rating" id="star-{{ $i }}" value="{{ $i }}" class="hidden peer">
+                                <label for="star-{{ $i }}" onclick="setRating({{ $i }})" class="star-label cursor-pointer transition duration-200">
+                                    <i data-lucide="star" class="w-10 h-10 text-gray-200 hover:scale-110 transition"></i>
+                                </label>
+                            @endfor
+                        </div>
+                        <p id="rating-text" class="text-sm font-bold text-rose-500 mt-4 h-5"></p>
+                    </div>
+
+                    {{-- Comment --}}
+                    <div class="mb-8">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Bagikan pengalaman Anda</label>
+                        <textarea name="comment" rows="4" 
+                                  placeholder="Contoh: Buahnya sangat segar, pengiriman cepat sekali!..."
+                                  class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition outline-none text-sm"></textarea>
+                    </div>
+
+                    {{-- Photo --}}
+                    <div class="mb-10">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Unggah Foto Produk (Opsional)</label>
+                        <div class="relative group">
+                            <input type="file" name="photo" id="review_photo" accept="image/*" class="hidden" onchange="previewImage(this)">
+                            <label for="review_photo" class="w-full flex flex-col items-center justify-center gap-2 py-8 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer group-hover:border-rose-300 group-hover:bg-rose-50 transition border-spacing-4">
+                                <div id="photo_preview_container" class="hidden mb-2">
+                                    <img id="photo_preview" src="#" class="w-24 h-24 rounded-xl object-cover border-2 border-white shadow-md">
+                                </div>
+                                <div id="upload_placeholder" class="flex flex-col items-center">
+                                    <i data-lucide="camera" class="w-10 h-10 text-gray-400 mb-2 group-hover:text-rose-500"></i>
+                                    <span class="text-xs font-bold text-gray-400 group-hover:text-rose-600">Tekan untuk unggah foto</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-rose-100 hover:bg-rose-600 transition duration-300">
+                        Kirim Ulasan
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .star-label.active i {
+        fill: #f43f5e;
+        color: #f43f5e;
+    }
+</style>
+
 <script>
+    function openReviewModal(productId, productName) {
+        document.getElementById('review_product_id').value = productId;
+        document.getElementById('review_product_name').innerText = productName;
+        document.getElementById('reviewModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeReviewModal() {
+        document.getElementById('reviewModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    function setRating(rating) {
+        const labels = document.querySelectorAll('.star-label');
+        const text = document.getElementById('rating-text');
+        const ratingsArr = ['', 'Sangat Buruk', 'Buruk', 'Lumayan', 'Bagus!', 'Sangat Puas!'];
+        
+        labels.forEach((label, index) => {
+            if (index < rating) {
+                label.classList.add('active');
+            } else {
+                label.classList.remove('active');
+            }
+        });
+        
+        text.innerText = ratingsArr[rating];
+        document.getElementById('star-' + rating).checked = true;
+    }
+
+    function previewImage(input) {
+        const container = document.getElementById('photo_preview_container');
+        const placeholder = document.getElementById('upload_placeholder');
+        const preview = document.getElementById('photo_preview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                container.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Previous Scripts
     function confirmCancelOrder() {
         Swal.fire({
             title: 'Batalkan Pesanan?',
@@ -359,5 +586,66 @@
             }
         })
     }
+
+    @if($order->status === 'pending' && $order->payment_deadline)
+    // Countdown Timer
+    function startCountdown() {
+        const deadline = new Date("{{ $order->payment_deadline->toIso8601String() }}").getTime();
+        const countdownElement = document.getElementById('countdown');
+
+        const x = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = deadline - now;
+
+            if (distance < 0) {
+                clearInterval(x);
+                countdownElement.innerHTML = "WAKTU HABIS";
+                countdownElement.classList.add('text-rose-600');
+                return;
+            }
+
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            countdownElement.innerHTML = hours + "j " + minutes + "m " + seconds + "d";
+        }, 1000);
+    }
+    startCountdown();
+    @endif
+    
+    @if($order->status === 'delivering' && $order->shipped_at)
+    // Delivery Duration Timer
+    function startDeliveryTimer() {
+        const startTime = new Date("{{ $order->shipped_at->toIso8601String() }}").getTime();
+        const timerElement = document.getElementById('delivery-timer');
+
+        if (!timerElement) return;
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const diff = now - startTime;
+
+            if (diff < 0) {
+                timerElement.innerText = "00:00:00";
+                return;
+            }
+
+            const h = Math.floor(diff / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const hh = h.toString().padStart(2, '0');
+            const mm = m.toString().padStart(2, '0');
+            const ss = s.toString().padStart(2, '0');
+
+            timerElement.innerText = `${hh}:${mm}:${ss}`;
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    }
+    startDeliveryTimer();
+    @endif
 </script>
 @endpush

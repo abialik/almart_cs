@@ -27,6 +27,15 @@ class Order extends Model
         'post_code',
         'province',
         'phone',
+        'payment_deadline',
+        'shipped_at',
+        'completed_at',
+    ];
+
+    protected $casts = [
+        'payment_deadline' => 'datetime',
+        'shipped_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     /**
@@ -69,5 +78,10 @@ class Order extends Model
     public function returns()
     {
         return $this->hasMany(ProductReturn::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 }

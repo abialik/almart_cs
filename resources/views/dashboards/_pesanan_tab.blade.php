@@ -77,7 +77,7 @@
                 {{-- Product Thumbnail (First Item) --}}
                 <div class="hidden sm:flex w-16 h-16 bg-gray-50 rounded-2xl border border-gray-100 items-center justify-center p-2 shrink-0 group-hover:scale-105 transition-transform duration-500">
                     @if($order->items->first() && $order->items->first()->product && $order->items->first()->product->image)
-                        <img src="{{ asset($order->items->first()->product->image) }}" class="max-w-full max-h-full object-contain">
+                        <img src="{{ asset($order->items->first()->product->image) }}" class="w-full h-full object-contain">
                     @else
                         <i data-lucide="image" class="w-6 h-6 text-gray-200"></i>
                     @endif
@@ -87,8 +87,22 @@
                     <div class="flex items-center gap-3 mb-2.5">
                         <span class="font-bold text-gray-900 text-base tracking-wide">{{ $order->order_code }}</span>
                         
-                        @if($order->status === 'paid')
-                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-widest whitespace-nowrap">Baru Masuk</span>
+                        {{-- SLA INDICATOR --}}
+                        <div class="sla-badge flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-tighter" 
+                             data-created-at="{{ $order->created_at->toIso8601String() }}"
+                             id="sla-{{ $order->id }}">
+                             <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse"></span>
+                             <span class="sla-text">Calculating...</span>
+                        </div>
+
+                        @if($order->status === 'pending')
+                            @if($order->payment && $order->payment->proof_of_payment)
+                                <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-widest whitespace-nowrap">Perlu Verifikasi</span>
+                            @else
+                                <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-rose-50 text-rose-500 border border-rose-100 uppercase tracking-widest whitespace-nowrap">Menunggu Bayar</span>
+                            @endif
+                        @elseif($order->status === 'paid')
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-widest whitespace-nowrap">Lunas (Siap SAPA)</span>
                         @elseif($order->status === 'processing')
                             <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-widest whitespace-nowrap">Diproses</span>
                         @elseif($order->status === 'ready_for_pickup')
@@ -120,27 +134,32 @@
                     Detail
                 </button>
                 
-
-
                 {{-- Action Buttons Based on Status --}}
-                @if($order->status === 'paid')
-                    <form action="{{ route('petugas.orders.update-status', $order->id) }}" method="POST" class="inline" id="form-tolak-{{ $order->id }}">
-                        @csrf
-                        @method('PATCH')
-                        <input type="hidden" name="status" value="cancelled">
-                        <button type="button" onclick="confirmTolak({{ $order->id }})" class="px-5 py-2.5 bg-white text-rose-500 hover:bg-rose-50 border border-rose-200 hover:border-rose-300 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                            Tolak
-                        </button>
-                    </form>
-
+                @if($order->status === 'pending')
+                    @if($order->payment && $order->payment->proof_of_payment)
+                        <form action="{{ route('petugas.orders.update-status', $order->id) }}" method="POST" class="inline" id="form-terima-{{ $order->id }}">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="status" value="processing">
+                            <button type="button" onclick="confirmTerima({{ $order->id }}, 'pending')" class="px-6 py-2.5 hover:-translate-y-0.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-pink-200/80 transition-all duration-300 flex items-center gap-2 shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Verifikasi & Terima
+                            </button>
+                        </form>
+                    @else
+                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->phone) }}?text=Halo%20{{ urlencode($order->customer->name ?? $order->full_name) }},%20pembayaran%20untuk%20pesanan%20{{ $order->order_code }}%20belum%20kami%20terima.%20Mohon%20segera%20upload%20buktinya%20ya." target="_blank" class="px-5 py-2.5 bg-white text-emerald-500 hover:bg-emerald-50 border border-emerald-100 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
+                            <i data-lucide="phone" class="w-4 h-4"></i>
+                            Hubungi Pelanggan
+                        </a>
+                    @endif
+                @elseif($order->status === 'paid')
                     <form action="{{ route('petugas.orders.update-status', $order->id) }}" method="POST" class="inline" id="form-terima-{{ $order->id }}">
                         @csrf
                         @method('PATCH')
                         <input type="hidden" name="status" value="processing">
-                        <button type="button" onclick="confirmTerima({{ $order->id }})" class="px-6 py-2.5 hover:-translate-y-0.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-pink-200/80 transition-all duration-300 flex items-center gap-2 shrink-0">
+                        <button type="button" onclick="confirmTerima({{ $order->id }}, 'paid')" class="px-6 py-2.5 hover:-translate-y-0.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-pink-200/80 transition-all duration-300 flex items-center gap-2 shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            Terima
+                            Terima Pesanan
                         </button>
                     </form>
                 @elseif($order->status === 'processing')

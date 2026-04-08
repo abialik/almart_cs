@@ -126,9 +126,15 @@
                                         </span>
                                     @endif
                                 </div>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                                    Bayar Sebelum <span class="text-red-500">{{ $order->created_at->addDay()->format('d M Y, H:i') }} WIB</span>
-                                </p>
+                                @if($order->status === 'pending')
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                        Bayar Sebelum <span class="text-red-500">{{ $order->payment_deadline ? $order->payment_deadline->format('d M Y, H:i') : $order->created_at->addDay()->format('d M Y, H:i') }} WIB</span>
+                                    </p>
+                                @elseif($order->status === 'delivered' && $order->completed_at)
+                                    <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest">
+                                        Selesai: <span class="text-green-600">{{ $order->completed_at->format('d M Y, H:i') }} WIB</span>
+                                    </p>
+                                @endif
                             </div>
 
                             {{-- Order Body --}}

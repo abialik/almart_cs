@@ -23,23 +23,33 @@ class PetugasDashboardController extends Controller
         $query = Order::with(['items.product', 'customer', 'payment'])->latest();
 
         // Data Statistik (Kotak Scoreboard)
-        $countBaru = (clone $query)->where('status', 'paid')->count();
+        $countBaru = (clone $query)->whereIn('status', ['pending', 'paid'])->count();
         $countDiproses = (clone $query)->where('status', 'processing')->count();
         $countDelivery = (clone $query)->where('status', 'delivering')->count();
         $countReadyForPickup = (clone $query)->where('status', 'ready_for_pickup')->count();
         $countSelesai = (clone $query)->where('status', 'delivered')->whereDate('updated_at', today())->count();
+        
+        // Statistik Pribadi Petugas (Motivasi)
+        $pribadiSelesai = Order::where('petugas_id', auth()->id())
+                                ->where('status', 'delivered')
+                                ->whereDate('updated_at', today())
+                                ->count();
+        $pribadiAktif = Order::where('petugas_id', auth()->id())
+                                ->whereIn('status', ['processing', 'delivering', 'ready_for_pickup'])
+                                ->count();
+
         $countSemua = $countBaru + $countDiproses + $countDelivery + $countReadyForPickup; // Terhitung aktif
 
         // Filter berdasarkan tab aktif
         if ($tab === 'pesanan') {
             if ($filter === 'baru') {
-                $query->where('status', 'paid');
+                $query->whereIn('status', ['pending', 'paid']);
             } elseif ($filter === 'diproses') {
                 $query->where('status', 'processing');
             } elseif ($filter === 'selesai') {
                 $query->where('status', 'delivered');
             } else {
-                $query->whereIn('status', ['paid', 'processing', 'delivered']);
+                $query->whereIn('status', ['pending', 'paid', 'processing', 'delivered']);
             }
         } elseif ($tab === 'picking') {
             $query->where('status', 'processing');
@@ -55,7 +65,8 @@ class PetugasDashboardController extends Controller
 
         return view('dashboards.petugas', compact(
             'tab', 'subtab', 'filter', 'orders', 
-            'countBaru', 'countDiproses', 'countSelesai', 'countSemua', 'countDelivery', 'countReadyForPickup'
+            'countBaru', 'countDiproses', 'countSelesai', 'countSemua', 'countDelivery', 'countReadyForPickup',
+            'pribadiSelesai', 'pribadiAktif'
         ));
     }
 
@@ -64,7 +75,7 @@ class PetugasDashboardController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['items.product', 'customer']);
+        $order->load(['items.product', 'customer', 'payment']);
         
         // Mengembalikan serpihan HTML agar mempermudah render di frontend (AJAX modal)
         return response()->json([
@@ -77,7 +88,7 @@ class PetugasDashboardController extends Controller
      */
     public function showPicking(Order $order)
     {
-        $order->load(['items.product', 'customer']);
+        $order->load(['items.product', 'customer', 'payment']);
         
         return response()->json([
             'html' => view('dashboards._picking_detail', compact('order'))->render()
@@ -96,8 +107,17 @@ class PetugasDashboardController extends Controller
         $data = ['status' => $request->status];
 
         // Jika petugas menerima pesanan, catat ID petugas tersebut
-        if ($request->status === 'processing' && $previousStatus === 'paid') {
+        if ($request->status === 'processing' && in_array($previousStatus, ['pending', 'paid'])) {
             $data['petugas_id'] = auth()->id();
+            
+            // Jika tadinya pending, otomatis bayar (telah diverifikasi petugas)
+            if ($previousStatus === 'pending' && $order->payment) {
+                $order->payment->update(['status' => 'paid']);
+            }
+        }
+
+        if ($request->status === 'delivered') {
+            $data['completed_at'] = now();
         }
 
         $order->update($data);
@@ -140,8 +160,13 @@ class PetugasDashboardController extends Controller
 
         // Tentukan status selanjutnya berdasarkan tipe pengiriman
         $nextStatus = ($order->shipping_type === 'pickup') ? 'ready_for_pickup' : 'delivering';
+        
+        $updateData = ['status' => $nextStatus];
+        if ($nextStatus === 'delivering') {
+            $updateData['shipped_at'] = now();
+        }
 
-        $order->update(['status' => $nextStatus]);
+        $order->update($updateData);
 
         return redirect()->route('petugas.dashboard', ['tab' => 'picking'])
             ->with('success', 'Proses picking untuk ' . $order->order_code . ' telah selesai. Pesanan kini siap ' . ($nextStatus === 'delivering' ? 'dikirim.' : 'diambil.'));
@@ -167,9 +192,20 @@ class PetugasDashboardController extends Controller
 
         $order->update([
             'status' => 'delivered',
-            'pickup_note' => $request->pickup_note
+            'pickup_note' => $request->pickup_note,
+            'completed_at' => now()
         ]);
 
         return redirect()->back()->with('success', 'Pesanan ' . $order->order_code . ' berhasil divalidasi dan telah diambil.');
+    }
+
+    /**
+     * Print order receipt.
+     */
+    public function printReceipt(Order $order)
+    {
+        $order->load(['items.product', 'customer', 'payment']);
+        
+        return view('dashboards.receipt', compact('order'));
     }
 }

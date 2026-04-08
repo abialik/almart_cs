@@ -84,6 +84,9 @@ class AdminOrderController extends Controller
         $message = "Status pesanan {$order->order_code} telah diperbarui menjadi " . strtoupper($request->status) . ".";
         event(new \App\Events\OrderStatusUpdatedEvent($order, $message));
 
+        // TO DATABASE INBOX (Customer)
+        $order->customer->notify(new \App\Notifications\OrderStatusUpdated($order, $message));
+
         // If status changed to paid, ensure payment status is also paid
         if ($request->status === 'paid' && $order->payment) {
             $order->payment->update(['status' => 'paid']);

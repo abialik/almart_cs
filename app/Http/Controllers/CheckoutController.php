@@ -153,6 +153,9 @@ class CheckoutController extends Controller
         $total       = $subtotal + $shippingFee;
 
         // Buat order
+        $paymentMethod = $request->payment_method;
+        $deadline = ($paymentMethod === 'cod') ? null : now()->addHours(24);
+
         $orderData = array_merge([
             'order_code'    => 'ORD-' . strtoupper(Str::random(8)),
             'customer_id'   => Auth::id(),
@@ -161,6 +164,7 @@ class CheckoutController extends Controller
             'total'         => $total,
             'status'        => 'pending',
             'shipping_type' => $request->shipping_type,
+            'payment_deadline' => $deadline,
         ], $addressData);
 
         if ($request->shipping_type === 'pickup') {
@@ -172,6 +176,9 @@ class CheckoutController extends Controller
         // Trigger Real-time Event for Admin
         event(new NewOrderEvent($order));
 
+        // TO DATABASE INBOX (Customer)
+        $order->customer->notify(new \App\Notifications\OrderStatusUpdated($order, "Pesanan baru {$order->order_code} telah berhasil dibuat. Silakan selesaikan pembayaran."));
+
         // Buat order items & potong stok
         foreach ($cartItems as $item) {
             OrderItem::create([
@@ -182,14 +189,16 @@ class CheckoutController extends Controller
                 'subtotal'  => $item->product->price * $item->qty,
             ]);
 
-            // DEDUCT STOCK
-            $item->product->decrement('stock', $item->qty);
+            // DEDUCT STOCK (only if not COD? No, we deduct stock on checkout for all, but return on cancel)
+            if ($item->product) {
+                $item->product->decrement('stock', $item->qty);
+            }
         }
 
         // Buat record payment
         Payment::create([
             'order_id' => $order->id,
-            'method'   => $request->payment_method,
+            'method'   => $paymentMethod,
             'status'   => 'unpaid',
         ]);
 
@@ -210,9 +219,12 @@ class CheckoutController extends Controller
             abort(403);
         }
 
-        $order->load('items.product', 'payment');
+        $order->load(['items.product', 'payment']);
 
-        return view('checkout.payment', compact('order'));
+        return view('checkout.payment', [
+            'order'   => $order,
+            'hideNav' => true
+        ]);
     }
 
     /**
@@ -222,6 +234,11 @@ class CheckoutController extends Controller
     {
         if ($order->customer_id !== Auth::id()) {
             abort(403);
+        }
+
+        // Check if order is expired
+        if ($order->payment_deadline && now()->gt($order->payment_deadline)) {
+            return redirect()->back()->with('error', 'Maaf, batas waktu pembayaran untuk pesanan ini telah habis.');
         }
 
         $request->validate([
@@ -243,6 +260,9 @@ class CheckoutController extends Controller
 
         // Update order status
         $order->update(['status' => 'paid']);
+
+        // TO DATABASE INBOX (Customer)
+        $order->customer->notify(new \App\Notifications\OrderStatusUpdated($order, "Pembayaran untuk pesanan {$order->order_code} telah kami terima."));
 
         // Notification for payment updated
         event(new NewOrderEvent($order));

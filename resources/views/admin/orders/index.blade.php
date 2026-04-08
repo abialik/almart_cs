@@ -142,9 +142,31 @@
                             <span class="inline-flex px-3 py-1 rounded-full text-[10px] font-black tracking-widest {{ $statusClass }}">{{ $statusLabel }}</span>
                         </td>
                         <td class="px-6 py-5 whitespace-nowrap text-center">
-                            <a href="{{ route((auth()->user() ? auth()->user()->role : 'admin') . '.orders.show', $order->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-400 bg-white hover:bg-gray-50 hover:text-blue-500 hover:border-blue-200 transition shadow-sm mx-auto">
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                            </a>
+                            <div class="flex items-center justify-center gap-2">
+                                {{-- Quick Actions for Pending --}}
+                                @if($order->status === 'pending')
+                                    <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="inline">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="status" value="paid">
+                                        <button type="submit" title="Terima Pembayaran" class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition shadow-sm">
+                                            <i data-lucide="check" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                {{-- Quick Actions for Paid --}}
+                                @elseif($order->status === 'paid')
+                                    <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="inline">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="status" value="processing">
+                                        <button type="submit" title="Teruskan ke SAPA" class="flex items-center justify-center w-8 h-8 rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition shadow-sm">
+                                            <i data-lucide="package" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <a href="{{ route((auth()->user() ? auth()->user()->role : 'admin') . '.orders.show', $order->id) }}" title="Lihat Detail" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-400 bg-white hover:bg-gray-50 hover:text-blue-500 hover:border-blue-200 transition shadow-sm">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     @empty

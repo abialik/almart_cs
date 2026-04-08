@@ -53,7 +53,7 @@
             <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-rose-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
             <div class="relative z-10">
                 <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Total Orders</p>
-                <h2 id="stats-total-orders" class="text-4xl font-black text-gray-900 tracking-tighter">{{ number_format($totalOrders) }}</h2>
+                <h2 class="text-4xl font-black text-gray-900 tracking-tighter"><span id="metric-total-orders">{{ number_format($totalOrders) }}</span></h2>
                 <div class="mt-4 flex items-center gap-2">
                     <span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100 group-hover:scale-110 transition-transform">Live Update</span>
                 </div>
@@ -68,7 +68,7 @@
             <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
             <div class="relative z-10">
                 <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Gross Revenue</p>
-                <h2 class="text-3xl font-black text-gray-900 tracking-tighter">Rp {{ number_format($totalRevenue/1000, 0) }}k</h2>
+                <h2 class="text-3xl font-black text-gray-900 tracking-tighter">Rp <span id="metric-revenue">{{ number_format($totalRevenue/1000, 0) }}</span>k</h2>
                 <div class="mt-4 flex items-center gap-2">
                     <span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100 group-hover:scale-110 transition-transform">+{{ number_format(count($recentTransactions)) }} New</span>
                 </div>
@@ -83,7 +83,7 @@
             <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-orange-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
             <div class="relative z-10">
                 <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Inventories</p>
-                <h2 class="text-4xl font-black text-gray-900 tracking-tighter">{{ number_format($totalProducts) }}</h2>
+                <h2 class="text-4xl font-black text-gray-900 tracking-tighter"><span id="metric-products">{{ number_format($totalProducts) }}</span></h2>
                 <div class="mt-4 flex items-center gap-2">
                     <span class="px-2 py-1 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-rose-100 group-hover:scale-110 transition-transform">Ready</span>
                 </div>
@@ -109,7 +109,66 @@
         </div>
 
     </div>
+    
+    <!-- CRITICAL ALERTS & FEEDBACK -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up" style="animation-delay: 0.05s">
+        
+        <!-- Alerts: Komplain -->
+        <a href="{{ route('admin.complaints.index') }}" class="group bg-rose-50/50 p-6 rounded-[2.5rem] border border-rose-100 flex items-center justify-between hover:bg-rose-50 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm group-hover:scale-110 transition">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-rose-400 uppercase tracking-widest leading-none">Complaints</p>
+                    <p class="text-xl font-black text-rose-600 mt-1"><span id="metric-complaints">{{ $totalComplaints }}</span> <span class="text-xs font-bold text-rose-400">Total</span></p>
+                </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-rose-200 group-hover:text-rose-500 transition"></i>
+        </a>
 
+        <!-- Alerts: Retur -->
+        <a href="{{ route('admin.returns.index') }}" class="group bg-amber-50/50 p-6 rounded-[2.5rem] border border-amber-100 flex items-center justify-between hover:bg-amber-50 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-amber-500 shadow-sm group-hover:scale-110 transition">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-amber-400 uppercase tracking-widest leading-none">Returns</p>
+                    <p class="text-xl font-black text-amber-600 mt-1"><span id="metric-returns">{{ $totalReturns }}</span> <span class="text-xs font-bold text-amber-400">Total</span></p>
+                </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-amber-200 group-hover:text-amber-500 transition"></i>
+        </a>
+
+        <!-- Insight: Reviews -->
+        <a href="{{ route('admin.reviews.index') }}" class="group bg-blue-50/50 p-6 rounded-[2.5rem] border border-blue-100 flex items-center justify-between hover:bg-blue-50 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-500 shadow-sm group-hover:scale-110 transition">
+                    <i data-lucide="star" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest leading-none">Total Reviews</p>
+                    <p class="text-xl font-black text-blue-600 mt-1"><span id="metric-reviews">{{ number_format($totalReviews) }}</span> <span class="text-xs font-bold text-blue-400">Masuk</span></p>
+                </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-blue-200 group-hover:text-blue-500 transition"></i>
+        </a>
+
+        <!-- Insight: Site Rating -->
+        <div class="bg-emerald-50/50 p-6 rounded-[2.5rem] border border-emerald-100 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
+                    <i data-lucide="smile" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest leading-none">Shop Rating</p>
+                    <p class="text-xl font-black text-emerald-600 mt-1"><span id="metric-rating">{{ number_format($averageRating, 1) }}</span> <span class="text-xs font-bold text-emerald-400">/ 5.0</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- MAIN CHARTS SECTION -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-slide-up" style="animation-delay: 0.1s">
 
@@ -174,6 +233,20 @@
                         <span class="text-[10px] font-black text-gray-400 group-hover:text-orange-600 uppercase tracking-widest transition-colors tracking-tight">Dalam Antrean</span>
                     </div>
                     <span class="text-xl font-black text-gray-900 group-hover:text-orange-700 transition-colors">{{ $statusCounts['Dalam Proses'] }}</span>
+                </div>
+                <div class="p-5 bg-gray-50/80 backdrop-blur-sm rounded-[2rem] border border-white flex items-center justify-between group hover:bg-rose-50 hover:border-rose-100 transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_10px_#f43f5e]"></div>
+                        <span class="text-[10px] font-black text-gray-400 group-hover:text-rose-600 uppercase tracking-widest transition-colors tracking-tight">Menunggu Pembayaran</span>
+                    </div>
+                    <span class="text-xl font-black text-gray-900 group-hover:text-rose-700 transition-colors">{{ $statusCounts['Pending'] }}</span>
+                </div>
+                <div class="p-5 bg-gray-50/80 backdrop-blur-sm rounded-[2rem] border border-white flex items-center justify-between group hover:bg-gray-100 hover:border-gray-200 transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="w-2 h-2 rounded-full bg-gray-400 shadow-[0_0_10px_#94a3b8]"></div>
+                        <span class="text-[10px] font-black text-gray-400 group-hover:text-gray-600 uppercase tracking-widest transition-colors tracking-tight">Pesanan Dibatalkan</span>
+                    </div>
+                    <span class="text-xl font-black text-gray-900 group-hover:text-gray-700 transition-colors">{{ $statusCounts['Dibatalkan'] }}</span>
                 </div>
             </div>
         </div>
@@ -356,7 +429,7 @@
 
         // STATUS CHART (MINIMALIST DONUT)
         const statusCtx = document.getElementById('statusChart').getContext('2d');
-        new Chart(statusCtx, {
+        const statusChart = new Chart(statusCtx, {
             type: 'doughnut',
             data: {
                 labels: ['Selesai', 'Proses', 'Pending', 'Batal'],
@@ -386,6 +459,86 @@
                 }
             }
         });
+
+        // REAL-TIME UPDATE LOGIC
+        function animateValue(id, newValue, addon = '') {
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            el.classList.add('scale-125', 'text-rose-600', 'transition-all', 'duration-300');
+            setTimeout(() => {
+                el.innerText = newValue + addon;
+                el.classList.remove('scale-125', 'text-rose-600');
+            }, 300);
+        }
+
+        window.updateDashboardStats = function(order) {
+            // Update Total Orders
+            const currentOrders = parseInt(document.getElementById('metric-total-orders').innerText.replace(/,/g, ''));
+            animateValue('metric-total-orders', (currentOrders + 1).toLocaleString());
+
+            // Update Revenue (k format)
+            const currentRevenue = parseFloat(document.getElementById('metric-revenue').innerText.replace(/,/g, ''));
+            const newRevenue = currentRevenue + (order.total / 1000);
+            animateValue('metric-revenue', Math.round(newRevenue).toLocaleString());
+            
+            // Add to recent transactions list
+            const list = document.getElementById('recent-transactions-list');
+            if (list) {
+                const newItem = document.createElement('div');
+                newItem.className = 'flex items-center justify-between group p-4 bg-rose-50 rounded-[2.5rem] animate-bounce-short border border-rose-100';
+                newItem.innerHTML = `
+                    <div class="flex items-center gap-6">
+                        <div class="w-16 h-16 bg-white text-rose-600 rounded-[1.8rem] flex items-center justify-center font-black text-2xl shadow-sm border border-gray-50 uppercase">
+                            ${(order.customer ? order.customer.name[0] : 'G')}
+                        </div>
+                        <div>
+                            <p class="text-xl font-black text-gray-900 leading-tight">${order.customer ? order.customer.name : 'Guest'}</p>
+                            <div class="flex items-center gap-3 mt-2">
+                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white px-3 py-1 rounded-lg border border-gray-100">${order.order_code}</span>
+                                <span class="text-[9px] font-bold text-rose-500 italic">Just Now</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-black text-gray-900 tracking-tighter">Rp ${Math.round(order.total/1000)}k</p>
+                        <span class="inline-flex items-center px-4 py-1.5 rounded-xl text-[9px] font-black bg-rose-50 text-rose-500 mt-3 uppercase tracking-widest shadow-sm">
+                            ● Baru
+                        </span>
+                    </div>
+                `;
+                list.prepend(newItem);
+                if (list.children.length > 5) list.lastElementChild.remove();
+            }
+        };
+
+        // Listen for Real-time Events
+        window.Echo.channel('admin-notifications')
+            .listen('.new-return', (e) => {
+                const current = parseInt(document.getElementById('metric-returns').innerText.replace(/,/g, ''));
+                animateValue('metric-returns', (current + 1).toLocaleString());
+            })
+            .listen('.new-review', (e) => {
+                const current = parseInt(document.getElementById('metric-reviews').innerText.replace(/,/g, ''));
+                animateValue('metric-reviews', (current + 1).toLocaleString());
+                
+                // Update average rating
+                if (e.averageRating) {
+                    animateValue('metric-rating', parseFloat(e.averageRating).toFixed(1));
+                }
+            })
+            .listen('.new-complaint', (e) => {
+                const current = parseInt(document.getElementById('metric-complaints').innerText.replace(/,/g, ''));
+                animateValue('metric-complaints', (current + 1).toLocaleString());
+            });
     });
 </script>
+
+<style>
+    @keyframes bounceShort {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-bounce-short { animation: bounceShort 0.5s ease-out; }
+</style>
 @endsection

@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AdminCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +83,9 @@ Route::middleware(['auth', 'active', 'role:customer'])
         Route::get('/order-status', [OrderController::class, 'status'])
             ->name('orders.status');
 
+        Route::get('/orders/{order}/receipt', [OrderController::class, 'receipt'])
+            ->name('orders.receipt');
+
         Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])
             ->name('orders.cancel');
 
@@ -108,6 +112,18 @@ Route::middleware(['auth', 'active', 'role:customer'])
             ->name('complaint.create');
         Route::post('/complaint', [\App\Http\Controllers\PageController::class, 'submitComplaint'])
             ->name('complaint.store');
+
+        // PRODUCT REVIEWS
+        Route::post('/reviews', [\App\Http\Controllers\Customer\ProductReviewController::class, 'store'])
+            ->name('reviews.store');
+
+        // CUSTOMER INBOX (NOTIFICATIONS)
+        Route::get('/inbox', [\App\Http\Controllers\Customer\InboxController::class, 'index'])
+            ->name('inbox.index');
+        Route::get('/inbox/{id}', [\App\Http\Controllers\Customer\InboxController::class, 'show'])
+            ->name('inbox.show');
+        Route::post('/inbox/mark-all-read', [\App\Http\Controllers\Customer\InboxController::class, 'markAllAsRead'])
+            ->name('inbox.mark-all-read');
     });
 
 
@@ -144,6 +160,10 @@ Route::middleware(['auth', 'active', 'role:admin'])
         Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])
             ->name('dashboard');
 
+        // CATEGORY MANAGEMENT
+        // CATEGORY MANAGEMENT
+        Route::resource('categories', AdminCategoryController::class)->except(['show', 'create', 'edit']);
+
         // ORDERS MANAGEMENT
         Route::get('/orders/export', [AdminOrderController::class, 'export'])->name('orders.export');
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
@@ -170,6 +190,10 @@ Route::middleware(['auth', 'active', 'role:admin'])
         // NEWSLETTER LIST
         Route::get('/newsletters', [\App\Http\Controllers\NewsletterController::class, 'index'])->name('newsletters.index');
         Route::delete('/newsletters/{subscription}', [\App\Http\Controllers\NewsletterController::class, 'destroy'])->name('newsletters.destroy');
+
+        // REVIEWS MANAGEMENT (ADMIN)
+        Route::get('/reviews', [\App\Http\Controllers\Admin\AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\AdminReviewController::class, 'destroy'])->name('reviews.destroy');
 
     });
 
@@ -201,6 +225,9 @@ Route::middleware(['auth', 'active', 'role:petugas'])
 
         // PICKUP VALIDATION
         Route::post('/orders/validate-pickup', [\App\Http\Controllers\PetugasDashboardController::class, 'validatePickup'])->name('orders.validate-pickup');
+
+        // PRINT RECEIPT
+        Route::get('/orders/{order}/receipt', [\App\Http\Controllers\PetugasDashboardController::class, 'printReceipt'])->name('orders.receipt');
     });
 
 

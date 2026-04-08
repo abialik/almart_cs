@@ -122,38 +122,116 @@
     {{-- RIGHT: STATUS & CUSTOMER (4 COLUMNS) --}}
     <div class="lg:col-span-4 space-y-8">
         
-        {{-- ACTION: UPDATE STATUS --}}
-        <div class="bg-white rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] border border-gray-100 p-10 relative overflow-hidden group">
-            <div class="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-rose-500 to-indigo-600"></div>
+        {{-- ACTION: SMART AUTOMATION CARD --}}
+        <div class="bg-white rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden relative group">
+            <div class="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-rose-500 via-orange-500 to-emerald-500"></div>
             
-            <h3 class="text-xl font-black text-gray-900 tracking-tight mb-8">Ubah Status</h3>
-            
-            <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="space-y-6">
-                @csrf
-                @method('PATCH')
-                
-                <div class="space-y-3">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">Progress Alur SAPA</label>
-                    <select name="status" class="w-full bg-gray-50 border-none px-6 py-5 rounded-2xl text-sm font-black outline-none focus:bg-white focus:ring-8 focus:ring-rose-50 transition-all appearance-none cursor-pointer">
-                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>PENDING (Menunggu)</option>
-                        <option value="paid" {{ $order->status === 'paid' ? 'selected' : '' }}>PAID (Terverifikasi)</option>
-                        <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>PROCESSING (Dikemas)</option>
-                        <option value="delivering" {{ $order->status === 'delivering' ? 'selected' : '' }}>DELIVERING (Kurir OTW)</option>
-                        <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>DELIVERED (Sampai)</option>
-                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>CANCELLED (Dibatalkan)</option>
-                    </select>
+            <div class="p-10">
+                <h3 class="text-xl font-black text-gray-900 tracking-tight mb-8">Alur Kerja Otomatis</h3>
+
+                {{-- PENDING STATE --}}
+                @if($order->status === 'pending')
+                    <div class="space-y-4">
+                        <div class="bg-rose-50 p-6 rounded-3xl border border-rose-100 mb-6">
+                            <p class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">Status Saat Ini</p>
+                            <p class="text-sm font-black text-rose-600">Menunggu Verifikasi Pembayaran</p>
+                        </div>
+
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST">
+                            @csrf @method('PATCH')
+                            <input type="hidden" name="status" value="paid">
+                            <button type="submit" class="w-full py-6 bg-emerald-500 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-200 hover:bg-emerald-600 hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                TERIMA PEMBAYARAN
+                            </button>
+                        </form>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->phone) }}?text=Halo%20{{ urlencode($order->user->name ?? 'Pelanggan') }},%20pembayaran%20pesanan%20{{ $order->order_code }}%20belum%20kami%20terima.%20Mohon%20segera%20upload%20buktinya%20ya." target="_blank" class="py-5 bg-white border border-gray-200 text-gray-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                                <i data-lucide="phone" class="w-3 h-3"></i>
+                                HUBUNGI WA
+                            </a>
+                            <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="cancelled">
+                                <button type="submit" class="w-full py-5 bg-white border border-rose-100 text-rose-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="x-circle" class="w-3 h-3"></i>
+                                    BATALKAN
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                {{-- PAID STATE --}}
+                @elseif($order->status === 'paid')
+                    <div class="space-y-4 text-center py-6">
+                        <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="check-circle" class="w-10 h-10"></i>
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900">Pembayaran Sah</h4>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest leading-relaxed">Pesanan siap untuk <br> diteruskan ke bagian pengambilan.</p>
+                        
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="mt-8">
+                            @csrf @method('PATCH')
+                            <input type="hidden" name="status" value="processing">
+                            <button type="submit" class="w-full py-6 bg-rose-500 text-white rounded-[2.5rem] text-xs font-black uppercase tracking-[0.2em] shadow-2xl shadow-rose-200 hover:bg-rose-600 hover:-translate-y-1 transition-all">
+                                TERUSKAN KE BAG. SAPA
+                            </button>
+                        </form>
+                    </div>
+
+                {{-- PROCESSING STATE --}}
+                @elseif($order->status === 'processing')
+                    <div class="space-y-6 text-center py-10">
+                        <div class="relative w-24 h-24 mx-auto mb-8">
+                            <div class="absolute inset-0 bg-orange-500 rounded-full animate-ping opacity-20"></div>
+                            <div class="relative bg-orange-500 text-white w-24 h-24 rounded-full flex items-center justify-center shadow-2xl shadow-orange-200">
+                                <i data-lucide="package" class="w-10 h-10 animate-bounce"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900">Sedang Diambil (Picking)</h4>
+                        <p class="text-xs text-orange-500 font-black uppercase tracking-[0.3em]">PROGRESS PETUGAS GUDANG</p>
+                        <div class="pt-6">
+                             <span class="inline-block px-6 py-2 bg-gray-50 text-gray-400 rounded-full text-[10px] font-black uppercase tracking-widest">Menunggu Selesai Picking</span>
+                        </div>
+                    </div>
+
+                {{-- DELIVERING / READY STATE --}}
+                @elseif(in_array($order->status, ['delivering', 'ready_for_pickup']))
+                    <div class="space-y-6 text-center py-10">
+                        <div class="w-24 h-24 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-blue-200 animate-float">
+                            <i data-lucide="{{ $order->status === 'delivering' ? 'truck' : 'shopping-bag' }}" class="w-10 h-10"></i>
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900">{{ $order->status === 'delivering' ? 'Dalam Pengantaran' : 'Siap Diambil' }}</h4>
+                        <p class="text-[10px] text-blue-500 font-black uppercase tracking-widest">KODEP PICKUP: <span class="bg-blue-50 px-3 py-1 rounded-lg ml-2">{{ $order->pickup_code ?? 'N/A' }}</span></p>
+                    </div>
+
+                {{-- FINISHED STATE --}}
+                @elseif($order->status === 'delivered')
+                    <div class="space-y-6 text-center py-10">
+                        <div class="w-24 h-24 bg-gray-900 text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                            <i data-lucide="check-check" class="w-10 h-10"></i>
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900">Pesanan Selesai</h4>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">TRANSAKSI TELAH DITUTUP</p>
+                    </div>
+
+                {{-- CANCELLED STATE --}}
+                @elseif($order->status === 'cancelled')
+                    <div class="space-y-6 text-center py-10">
+                        <div class="w-24 h-24 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto">
+                            <i data-lucide="slash" class="w-10 h-10"></i>
+                        </div>
+                        <h4 class="text-xl font-black text-gray-400">Pesanan Batal</h4>
+                    </div>
+                @endif
+
+                <div class="mt-8 pt-8 border-t border-gray-50 flex items-start gap-3">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 mt-0.5"></i>
+                    <p class="text-[9px] text-gray-400 leading-relaxed font-bold uppercase tracking-wider">
+                        Alur kerja otomatis ini memastikan konsistensi data dan notifikasi pelanggan.
+                    </p>
                 </div>
-
-                <button type="submit" class="w-full py-6 bg-rose-500 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-2xl shadow-rose-200 hover:bg-rose-600 hover:-translate-y-1 active:scale-95 transition-all outline-none">
-                    Update Pesanan
-                </button>
-            </form>
-
-            <div class="mt-8 pt-8 border-t border-gray-50 flex items-start gap-3">
-                <i data-lucide="info" class="w-4 h-4 text-gray-300 mt-0.5"></i>
-                <p class="text-[10px] text-gray-400 leading-relaxed font-bold">
-                    Perubahan status akan langsung muncul di halaman aktivitas pelanggan secara real-time.
-                </p>
             </div>
         </div>
 

@@ -28,7 +28,10 @@ class PageController extends Controller
         
         $validated['user_id'] = \Illuminate\Support\Facades\Auth::id();
         
-        \App\Models\Complaint::create($validated);
+        $complaint = \App\Models\Complaint::create($validated);
+        
+        // Dispatch Real-time Event
+        event(new \App\Events\NewComplaintEvent($complaint));
         
         return redirect()->route('customer.complaints.index')->with('success', 'Keluhan Anda telah berhasil dikirim. Tim kami akan segera menindaklanjutinya.');
     }

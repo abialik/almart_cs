@@ -43,17 +43,23 @@
 
             {{-- RATING --}}
             <div class="flex items-center gap-2 mt-4">
-                <div class="text-yellow-400 text-lg">
+                <div class="flex items-center gap-0.5 text-yellow-400 text-lg">
                     @for($i = 1; $i <= 5; $i++)
-                        @if($product->rating >= $i)
+                        @if($product->averageRating >= $i)
+                            ★
+                        @elseif($product->averageRating > ($i - 1))
+                            {{-- Optional: Handle half star if needed, but keeping it simple like Alfagift --}}
                             ★
                         @else
                             ☆
                         @endif
                     @endfor
                 </div>
-                <span class="text-gray-500 text-sm">
-                    ({{ $product->rating }} Review)
+                <span class="text-gray-500 text-sm font-bold">
+                    {{ number_format($product->averageRating, 1) }} / 5.0
+                </span>
+                <span class="text-gray-400 text-sm ml-2">
+                    ({{ $product->reviews->count() }} Ulasan)
                 </span>
             </div>
 
@@ -146,6 +152,72 @@
 
     </div>
 
+    {{-- CUSTOMER REVIEWS SECTION --}}
+    <div class="mt-20 border-t border-gray-100 pt-20">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+            <div>
+                <h2 class="text-3xl font-black text-gray-900 tracking-tighter">Ulasan Pelanggan</h2>
+                <p class="text-gray-500 mt-1 font-medium">Apa kata mereka yang sudah membeli produk ini?</p>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 rounded-3xl flex items-center gap-6 border border-gray-100">
+                <div class="text-center border-r border-gray-200 pr-6">
+                    <p class="text-4xl font-black text-gray-900 leading-none">{{ number_format($product->averageRating, 1) }}</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">DARI 5.0</p>
+                </div>
+                <div>
+                    <div class="flex items-center gap-0.5 text-yellow-500 mb-1">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i data-lucide="star" class="w-4 h-4 {{ $i <= round($product->averageRating) ? 'fill-current' : 'text-gray-200' }}"></i>
+                        @endfor
+                    </div>
+                    <p class="text-xs font-bold text-gray-500 italic">{{ $product->reviews->count() }} Reputasi Produk</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            @forelse($product->reviews as $review)
+                <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-md transition duration-300">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center text-rose-600 font-bold">
+                                {{ strtoupper(substr($review->user->name, 0, 1)) }}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 leading-none">{{ $review->user->name }}</h4>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">{{ $review->created_at->format('d M Y') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-0.5 text-yellow-400">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i data-lucide="star" class="w-3.5 h-3.5 {{ $i <= $review->rating ? 'fill-current' : 'text-gray-200' }}"></i>
+                            @endfor
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-600 leading-relaxed text-sm mb-6">"{{ $review->comment }}"</p>
+                    
+                    @if($review->photo_path)
+                        <div class="relative group w-24 h-24">
+                            <img src="{{ Storage::url($review->photo_path) }}" 
+                                 class="w-full h-full object-cover rounded-2xl border border-gray-100 shadow-sm">
+                            <a href="{{ Storage::url($review->photo_path) }}" target="_blank" class="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                                <i data-lucide="zoom-in" class="w-5 h-5 text-white"></i>
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <div class="md:col-span-2 bg-gray-50 rounded-[2.5rem] py-20 text-center border-2 border-dashed border-gray-200">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                        <i data-lucide="message-square" class="w-8 h-8 text-gray-300"></i>
+                    </div>
+                    <h3 class="text-gray-900 font-bold">Belum ada ulasan</h3>
+                    <p class="text-gray-400 text-sm mt-1">Jadilah yang pertama memberikan ulasan untuk produk ini!</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
 </div>
 
 

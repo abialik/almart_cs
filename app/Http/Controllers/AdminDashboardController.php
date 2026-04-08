@@ -50,7 +50,14 @@ class AdminDashboardController extends Controller
             'Dibatalkan' => Order::where('status', 'cancelled')->count(),
         ];
 
-        // 8. Transaksi Terbaru (Limit 5)
+        // 8. Tambahan Insight Baru (Reviews & Complaints)
+        $totalReviews = \App\Models\Review::count();
+        $averageRating = \App\Models\Review::avg('rating') ?: 0;
+        
+        $totalComplaints = \App\Models\Complaint::count();
+        $totalReturns = \App\Models\ProductReturn::count();
+
+        // 9. Transaksi Terbaru (Limit 5)
         $recentTransactions = Order::with('customer')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact(
@@ -62,7 +69,11 @@ class AdminDashboardController extends Controller
             'weeklyData',
             'monthlyData',
             'statusCounts',
-            'recentTransactions'
+            'recentTransactions',
+            'totalReviews',
+            'averageRating',
+            'totalComplaints',
+            'totalReturns'
         ));
     }
 }

@@ -6,14 +6,22 @@
             <p class="text-sm font-semibold text-gray-500 mt-1">{{ $order->customer->name ?? $order->full_name }}</p>
         </div>
         
-        <form action="{{ route('petugas.orders.complete-picking', $order->id) }}" method="POST" id="form-selesai-picking-{{ $order->id }}">
-            @csrf
-            @method('PATCH')
-            <button type="button" onclick="confirmSelesaiPicking({{ $order->id }})" id="btn-selesai-{{ $order->id }}" class="px-6 py-2.5 rounded-full text-sm font-bold bg-pink-100 text-pink-400 cursor-not-allowed transition-all duration-300 flex items-center gap-2 shadow-sm" disabled>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                Selesai Picking
-            </button>
-        </form>
+        <div class="flex items-center gap-3">
+            {{-- TOMBOL PRINT --}}
+            <a href="{{ route('petugas.orders.receipt', $order->id) }}" target="_blank" class="px-5 py-2.5 rounded-full text-xs font-black bg-gray-100 text-gray-500 hover:bg-gray-200 transition uppercase tracking-widest flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Cetak Struk
+            </a>
+
+            <form action="{{ route('petugas.orders.complete-picking', $order->id) }}" method="POST" id="form-selesai-picking-{{ $order->id }}">
+                @csrf
+                @method('PATCH')
+                <button type="button" onclick="confirmSelesaiPicking({{ $order->id }})" id="btn-selesai-{{ $order->id }}" class="px-6 py-2.5 rounded-full text-sm font-bold bg-pink-100 text-pink-400 cursor-not-allowed transition-all duration-300 flex items-center gap-2 shadow-sm" disabled>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    Selesai Picking
+                </button>
+            </form>
+        </div>
     </div>
 
     {{-- Progress Bar Interaktif --}}
