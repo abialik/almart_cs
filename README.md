@@ -1,59 +1,110 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Almart CS - Sistem Manajemen Toko Online
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Almart CS adalah platform e-commerce modern yang dibangun dengan framework Laravel, dirancang untuk mempermudah manajemen toko, operasional petugas, dan pengalaman berbelanja pelanggan.
 
-## About Laravel
+## 🛠️ Teknologi yang Digunakan
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Framework**: [Laravel 12](https://laravel.com) - Framework PHP untuk pengrajin web.
+- **Frontend**: Tailwind CSS & Vite.
+- **Database**: MySQL/MariaDB.
+- **Authentication**: [Laravel Breeze](https://laravel.com/docs/breeze) - Menyediakan sistem login dan registrasi yang minimalis dan kokoh.
+- **Server Lokal**: Direkomendasikan menggunakan **XAMPP** (sesuai struktur path project) atau **Laragon**.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🔑 Akun Demo (Default)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Gunakan akun berikut untuk mencoba fitur-fitur di setiap role. Pastikan Anda telah menjalankan seeder (`php artisan db:seed --class=UserSeeder`).
 
-## Learning Laravel
+| Role     | Email                | Password     |
+|----------|----------------------|--------------|
+| **Admin**    | `admin@almart.com`   | `admin123`   |
+| **Petugas**  | `petugas@almart.com` | `petugas123` |
+| **Customer** | `customer@almart.com` | `customer123` |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 👥 Penjelasan Role
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Aplikasi ini memiliki 3 level akses (role) yang berbeda:
 
-## Laravel Sponsors
+### 1. Admin
+Role tertinggi yang memiliki kendali penuh atas manajemen sistem.
+- **Manajemen Katalog**: Mengatur kategori produk dan data produk (tambah, edit, hapus).
+- **Manajemen Pesanan**: Memvalidasi pembayaran dari customer dan memantau status semua pesanan.
+- **Layanan Pelanggan**: Membalas komplain (complaints) dan mengelola pengajuan retur (returns).
+- **Manajemen Pengguna**: Mengelola akun petugas dan customer.
+- **Dashboard**: Melihat statistik penjualan dan ringkasan data melalui dashboard utama.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 2. Petugas (Staff)
+Role operasional yang fokus pada penyelesaian pesanan di gudang/toko.
+- **Order Picking**: Memproses pesanan yang sudah dibayar, menyiapkan barang (picking), dan memvalidasi ketersediaan stok.
+- **Pickup Validation**: Melakukan validasi saat pelanggan mengambil pesanan (jika menggunakan metode pickup).
+- **Update Status**: Memperbarui status pesanan dari "Paid" menjadi "Processed" atau "Shipped".
+- **Cetak Struk**: Mencetak struk belanja untuk pesanan pelanggan.
 
-### Premium Partners
+### 3. Customer (Pelanggan)
+Pengguna umum yang melakukan transaksi di Almart.
+- **Belanja**: Menjelajahi produk, mencari kategori, dan menambahkan barang ke Keranjang (Cart) atau Wishlist.
+- **Checkout**: Melakukan pemesanan, memilih alamat pengiriman, dan mengunggah bukti pembayaran manual.
+- **Tracking**: Memantau status pesanan secara real-time.
+- **Layanan Pasca-Beli**: Mengajukan komplain jika ada masalah atau melakukan retur barang sesuai ketentuan.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 📦 Manajemen Database
 
-## Contributing
+Project ini menggunakan fitur bawaan Laravel untuk mengelola struktur database. Anda **tidak perlu** mengimpor file `.sql` secara manual.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 1. Persiapan Database
+- Buka **PHPMyAdmin** (biasanya di `http://localhost/phpmyadmin`).
+- Buat database baru dengan nama `almart_cs` (atau nama lain sesuai keinginan Anda).
 
-## Code of Conduct
+### 2. Konfigurasi Koneksi
+- Buka file `.env` di root project.
+- Cari bagian `DB_DATABASE` dan pastikan namanya sesuai dengan database yang Anda buat:
+  ```env
+  DB_CONNECTION=mysql
+  DB_HOST=127.0.0.1
+  DB_PORT=3306
+  DB_DATABASE=almart_cs
+  DB_USERNAME=root
+  DB_PASSWORD=
+  ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Menjalankan Migration & Seeder
+Setelah database dibuat dan konfigurasi `.env` sudah benar, jalankan perintah ini di terminal:
+```bash
+# Untuk membuat struktur tabel
+php artisan migrate
 
-## Security Vulnerabilities
+# Untuk mengisi data awal (Admin, Produk, dll)
+php artisan db:seed
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# ATAU jalankan sekaligus
+php artisan migrate --seed
+```
 
-## License
+> [!IMPORTANT]
+> **Mengapa tidak ada file .sql?**
+> Kami menggunakan **Migrations** agar setiap perubahan struktur database tercatat dalam kode dan bisa dibagikan dengan mudah ke tim lain melalui Git tanpa risiko konflik file besar.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🚀 Cara Menjalankan Project
+
+1. Pastikan **XAMPP** atau **Laragon** sudah berjalan (Apache & MySQL).
+2. Clone repository dan masuk ke folder project.
+3. Jalankan `composer install` dan `npm install`.
+4. Salin `.env.example` menjadi `.env` jika belum ada:
+   ```bash
+   cp .env.example .env
+   ```
+5. Generate security key:
+   ```bash
+   php artisan key:generate
+   ```
+6. Ikuti langkah **Manajemen Database** di atas untuk menyiapkan tabel dan data.
+7. Jalankan server:
+   ```bash
+   php artisan serve
+   ```
+8. Jalankan build frontend:
+   ```bash
+   npm run dev
+   ```
+
